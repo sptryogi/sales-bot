@@ -85,7 +85,7 @@ async def chat(req: ChatRequest):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": req.message}
             ],
-            stream=False # Untuk demo API biasa (Non-streaming)
+            stream=True
         )
         response_text = completion.choices[0].message.content
         return ChatResponse(response=response_text, context_used=context_text[:200]+"...")
