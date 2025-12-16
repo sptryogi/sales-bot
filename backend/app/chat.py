@@ -42,19 +42,34 @@ def chat(payload: dict, user=Depends(get_current_user)):
     """
 
     messages = [{"role": "system", "content": system_prompt}]
-    for h in history[-6:]:
+    for h in history[-10:]:
         messages.append({"role": h["role"], "content": h["content"]})
     messages.append({"role": "user", "content": message})
 
-    res = client.chat.completions.create(
+    # res = client.chat.completions.create(
+    #     model="deepseek-chat",
+    #     messages=messages
+    # )
+
+    # answer = res.choices[0].message.content
+    stream = client.chat.completions.create(
         model="deepseek-chat",
         messages=messages,
         stream=True
     )
 
-    answer = res.choices[0].message.content
+    full_answer = ""
 
+    for chunk in stream:
+        delta = chunk.choices[0].delta
+        if delta and delta.content:
+            full_answer += delta.content
+
+    # save_chat(user.id, "user", message)
+    # save_chat(user.id, "assistant", answer)
+
+    # return {"answer": answer}
     save_chat(user.id, "user", message)
-    save_chat(user.id, "assistant", answer)
+    save_chat(user.id, "assistant", full_answer)
 
-    return {"answer": answer}
+    return {"answer": full_answer}
