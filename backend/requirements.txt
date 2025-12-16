@@ -7,6 +7,7 @@ langchain-community
 langchain-huggingface
 langchain-openai
 faiss-cpu
+opencv-python-headless
 pypdf
 docx2txt
 python-dotenv
