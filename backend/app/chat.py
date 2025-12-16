@@ -27,7 +27,16 @@ def chat(payload: dict, user=Depends(get_current_user)):
         context = "\n".join([d.page_content for d in docs])
 
     system_prompt = f"""
-    Kamu adalah MediSales AI.
+    Kamu adalah 'MediSales AI', asisten penjualan obat yang profesional, persuasif, tapi tetap akurat secara medis.
+    Tugasmu menjawab pertanyaan user HANYA berdasarkan konteks yang diberikan di bawah.
+    
+    Gaya Bahasa:
+    - Gunakan bahasa Indonesia yang sopan, ramah, dan meyakinkan (Sales Persona).
+    - Jawab jangan terlalu panjang ya, lebih ringkas atau singkat saja.
+    - Jika user bertanya perbandingan, BUATLAH TABEL Markdown agar jelas.
+    - Jika informasi tidak ada di konteks, katakan jujur bahwa kamu tidak memiliki data tersebut, jangan mengarang.
+    - Akhiri dengan kalimat penutup sales yang mengajak (Call to Action) jika relevan.
+    
     Jawab hanya berdasarkan konteks berikut:
     {context}
     """
@@ -39,7 +48,8 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     res = client.chat.completions.create(
         model="deepseek-chat",
-        messages=messages
+        messages=messages,
+        stream=True
     )
 
     answer = res.choices[0].message.content
