@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .chat import router as chat_router
 from .rag import build_rag
 from .utils import build_json_context
