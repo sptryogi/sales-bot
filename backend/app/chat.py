@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
-from .supabase_db import save_chat, load_chat
+from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title
 from .rag import load_rag
 
 router = APIRouter()
@@ -11,12 +11,29 @@ client = OpenAI(
     base_url="https://api.deepseek.com"
 )
 
+# Endpoint baru: Ambil daftar room chat
+@router.get("/sessions")
+def get_sessions(user=Depends(get_current_user)):
+    return get_user_sessions(user.id)
+
+# Endpoint baru: Buat room chat baru
+@router.post("/sessions")
+def new_session(user=Depends(get_current_user)):
+    session = create_session(user.id, "New Chat")
+    return session
+    
 @router.post("/chat")
 def chat(payload: dict, user=Depends(get_current_user)):
-    mode = payload["mode"]
-    message = payload["message"]
+    mode = payload.get("mode", "rag")
+    message = payload.get("message")
+    session_id = payload.get("session_id") # <--- Wajib ada session_id
 
-    history = load_chat(user.id)
+    # Jika tidak ada session_id, buat baru otomatis (safety net)
+    if not session_id:
+        new_sess = create_session(user.id, message[:30])
+        session_id = new_sess['id']
+
+    history = load_chat(user.id, session_id)
 
     context = ""
     if mode == "json":
@@ -69,7 +86,13 @@ def chat(payload: dict, user=Depends(get_current_user)):
     # save_chat(user.id, "assistant", answer)
 
     # return {"answer": answer}
-    save_chat(user.id, "user", message)
-    save_chat(user.id, "assistant", full_answer)
+    save_chat(user.id, "user", message, session_id)
+    save_chat(user.id, "assistant", full_answer, session_id)
 
-    return {"answer": full_answer}
+    # Update judul session jika ini chat pertama (logic sederhana)
+    if len(history) == 0:
+         # Bersihkan judul dari markdown asing di backend sekalian
+         clean_title = full_answer[:50].replace("*", "").replace("#", "").strip()
+         update_session_title(session_id, clean_title)
+
+    return {"answer": full_answer, "session_id": session_id}
