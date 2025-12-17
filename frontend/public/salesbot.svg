@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="120" fill="#111827"></rect>
+
+  <!-- Chat bubble -->
+  <rect x="96" y="112" width="320" height="220" rx="48" fill="#FFFFFF"></rect>
+  <path d="M200 332 L220 380 L260 332 Z" fill="#FFFFFF"></path>
+
+  <!-- AI dots -->
+  <circle cx="220" cy="220" r="12" fill="#111827"></circle>
+  <circle cx="256" cy="220" r="12" fill="#111827"></circle>
+  <circle cx="292" cy="220" r="12" fill="#111827"></circle>
+
+  <!-- Sales lightning -->
+  <path d="M300 150 L260 250 H300 L240 360" stroke="#22C55E" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
