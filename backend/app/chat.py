@@ -21,6 +21,12 @@ def get_sessions(user=Depends(get_current_user)):
 def new_session(user=Depends(get_current_user)):
     session = create_session(user.id, "New Chat")
     return session
+
+@router.get("/history/{session_id}")
+def get_chat_history(session_id: str, user=Depends(get_current_user)):
+    # Panggil fungsi load_chat yang sudah kita buat di database
+    history = load_chat(user.id, session_id)
+    return history
     
 @router.post("/chat")
 def chat(payload: dict, user=Depends(get_current_user)):
