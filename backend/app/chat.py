@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
-from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session, 
+from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session 
 from .rag import load_rag
 import tempfile
 import requests
