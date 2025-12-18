@@ -259,19 +259,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         
         <div className="flex-1 overflow-y-auto px-2 py-2">
           <div className="text-xs font-semibold text-gray-500 mb-2 px-2">History</div>
-          {/* /* {sessions.map((sess) => (
-              <button 
-                key={sess.id}
-                onClick={() => loadChatHistory(sess.id)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-md truncate mb-1 flex items-center gap-2
-                    ${currentSessionId === sess.id 
-                        ? 'bg-gray-200 dark:bg-gray-800 font-medium' 
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900'}`}
-              >
-                <MessageSquare size={14} className="flex-shrink-0 opacity-70"/>
-                <span className="truncate">{cleanTitle(sess.title)}</span>
-              </button>
-          ))} */ */}
           {sessions.map((sess) => (
             <div key={sess.id} className="relative group px-2">
               <button 
