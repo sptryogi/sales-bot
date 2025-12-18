@@ -186,18 +186,31 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       const file = e.target.files[0];
       if (!file) return;
   
+      // Batasi ukuran file (misal 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+          alert("File terlalu besar! Maksimal 5MB.");
+          return;
+      }
+  
       setIsUploading(true);
       try {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${Math.random()}.${fileExt}`;
+          // Gunakan timestamp agar nama file selalu unik
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           const filePath = `${session.user.id}/${fileName}`;
   
           // Upload ke Supabase Storage
           const { data, error } = await supabase.storage
               .from('chat-attachments')
-              .upload(filePath, file);
+              .upload(filePath, file, {
+                  cacheControl: '3600',
+                  upsert: false // Pastikan tidak menimpa file lama
+              });
   
-          if (error) throw error;
+          if (error) {
+              console.error("Supabase Storage Error:", error.message);
+              throw error;
+          }
   
           // Ambil Public URL
           const { data: { publicUrl } } = supabase.storage
@@ -210,8 +223,11 @@ export default function Chat({ session, darkMode, setDarkMode }) {
               type: file.type,
               size: file.size
           });
+          
+          console.log("Upload berhasil:", publicUrl);
       } catch (err) {
-          alert("Gagal upload file");
+          console.error("Full Error Detail:", err);
+          alert(`Gagal upload file: ${err.message || 'Cek koneksi/policy'}`);
       } finally {
           setIsUploading(false);
       }
