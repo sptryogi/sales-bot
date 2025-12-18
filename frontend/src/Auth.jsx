@@ -9,6 +9,28 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [isLogin, setIsLogin] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
 
+  // const handleAuth = async (e) => {
+  //   e.preventDefault()
+  //   setLoading(true)
+  //   setErrorMessage('')
+    
+  //   let error;
+  //   if (isLogin) {
+  //     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+  //     error = signInError
+  //   } else {
+  //     const { error: signUpError } = await supabase.auth.signUp({ email, password })
+  //     error = signUpError
+  //   }
+
+  //   if (error) {
+  //     setErrorMessage(error.message === "Invalid login credentials" ? "Email atau password salah." : error.message)
+  //   } else if (!isLogin) {
+  //     alert('Registrasi berhasil! Silakan login.')
+  //     setIsLogin(true)
+  //   }
+  //   setLoading(false)
+  // }
   const handleAuth = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -16,18 +38,36 @@ export default function Auth({ darkMode, setDarkMode }) {
     
     let error;
     if (isLogin) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       error = signInError
     } else {
-      const { error: signUpError } = await supabase.auth.signUp({ email, password })
+      // Saat SignUp, Supabase akan otomatis mengirim email konfirmasi jika setting Confirm Email aktif
+      const { data, error: signUpError } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+              // URL ini adalah tujuan user setelah klik link di email
+              emailRedirectTo: window.location.origin 
+          }
+      })
       error = signUpError
     }
-
+  
     if (error) {
-      setErrorMessage(error.message === "Invalid login credentials" ? "Email atau password salah." : error.message)
+      // Tambahkan pengecekan khusus untuk email yang belum dikonfirmasi
+      if (error.message === "Invalid login credentials") {
+          setErrorMessage("Email atau password salah.")
+      } else if (error.message.includes("Email not confirmed")) {
+          setErrorMessage("Email Anda belum dikonfirmasi. Silakan cek kotak masuk email Anda.")
+      } else {
+          setErrorMessage(error.message)
+      }
     } else if (!isLogin) {
-      alert('Registrasi berhasil! Silakan login.')
+      // Ubah pesan sukses registrasi
+      alert('Registrasi berhasil! Link konfirmasi telah dikirim ke email Anda. Silakan klik link tersebut sebelum mencoba login.')
       setIsLogin(true)
+      setEmail('')
+      setPassword('')
     }
     setLoading(false)
   }
