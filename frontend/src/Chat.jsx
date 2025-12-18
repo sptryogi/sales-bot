@@ -116,9 +116,10 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
     const userMessage = input
     setInput('')
+    const currentFile = attachedFile; // Simpan file ke variabel lokal
     
     // UI Optimistic Update (Tampilkan pesan user duluan)
-    const tempMessages = [...messages, { role: 'user', content: userMessage }]
+    const tempMessages = [...messages, { role: 'user', content: userMessage, file_metadata: currentFile }]
     setMessages(tempMessages)
     setIsLoading(true)
 
@@ -136,9 +137,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           'Content-Type': 'application/json'
         }
       });
-      // Setelah berhasil kirim:
-      setAttachedFile(null);
-      
 
       const fullAnswer = response.data.answer
       const returnedSessionId = response.data.session_id
@@ -172,7 +170,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         })
       }
 
-
+      // Setelah berhasil kirim:
+      setAttachedFile(null);
+    
     } catch (error) {
       console.error("Error:", error)
       setMessages(prev => [...prev, { role: 'assistant', content: "Maaf, terjadi kesalahan koneksi." }])
@@ -186,37 +186,23 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       const file = e.target.files[0];
       if (!file) return;
   
-      // Batasi ukuran file (misal 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-          alert("File terlalu besar! Maksimal 5MB.");
-          return;
-      }
-  
       setIsUploading(true);
       try {
           const fileExt = file.name.split('.').pop();
-          // Gunakan timestamp agar nama file selalu unik
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           const filePath = `${session.user.id}/${fileName}`;
   
-          // Upload ke Supabase Storage
           const { data, error } = await supabase.storage
               .from('chat-attachments')
-              .upload(filePath, file, {
-                  cacheControl: '3600',
-                  upsert: false // Pastikan tidak menimpa file lama
-              });
+              .upload(filePath, file);
   
-          if (error) {
-              console.error("Supabase Storage Error:", error.message);
-              throw error;
-          }
+          if (error) throw error;
   
-          // Ambil Public URL
           const { data: { publicUrl } } = supabase.storage
               .from('chat-attachments')
               .getPublicUrl(filePath);
   
+          // INI PENTING: Pastikan semua property ini ada
           setAttachedFile({
               name: file.name,
               url: publicUrl,
@@ -224,10 +210,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
               size: file.size
           });
           
-          console.log("Upload berhasil:", publicUrl);
+          setShowUploadMenu(false); // Tutup menu setelah pilih file
       } catch (err) {
-          console.error("Full Error Detail:", err);
-          alert(`Gagal upload file: ${err.message || 'Cek koneksi/policy'}`);
+          alert("Gagal upload file ke storage");
       } finally {
           setIsUploading(false);
       }
@@ -427,6 +412,26 @@ export default function Chat({ session, darkMode, setDarkMode }) {
             <div ref={messagesEndRef} className="h-4" /> 
           </div>
         </div>
+        {/* --- TAMBAHKAN KODE INI DI ATAS TEXTAREA --- */}
+        {attachedFile && (
+          <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-xl mb-3 w-fit border border-gray-300 dark:border-gray-600 relative animate-in fade-in slide-in-from-bottom-2">
+            <div className="p-2 bg-indigo-600 text-white rounded-lg">
+              {attachedFile.type.includes('image') ? <ImageIcon size={20} /> : <FileIcon size={20} />}
+            </div>
+            <div className="flex flex-col pr-6">
+              <span className="text-xs font-semibold truncate max-w-[120px] dark:text-white">
+                {attachedFile.name}
+              </span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400">Siap dikirim</span>
+            </div>
+            <button 
+              onClick={() => setAttachedFile(null)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-md"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
 
         {/* --- INPUT AREA --- */}
         <div className="absolute bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 pb-6 transition-colors duration-300">
