@@ -17,6 +17,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [attachedFile, setAttachedFile] = useState(null); // File yang akan diupload
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const [showUploadMenu, setShowUploadMenu] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
@@ -127,13 +128,17 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       const response = await axios.post(`${API_URL}/chat`, {
         mode: mode,
         message: userMessage,
-        session_id: currentSessionId // Kirim ID (null jika new chat)
+        session_id: currentSessionId, // Kirim ID (null jika new chat)
+        file_metadata: attachedFile
       }, {
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json'
         }
-      })
+      });
+      // Setelah berhasil kirim:
+      setAttachedFile(null);
+      
 
       const fullAnswer = response.data.answer
       const returnedSessionId = response.data.session_id
@@ -166,6 +171,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           return updated
         })
       }
+
 
     } catch (error) {
       console.error("Error:", error)
@@ -429,27 +435,19 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
                  <div className="flex justify-between items-center mt-1">
                     <div className="flex items-center gap-2">
-                        {/* Preview File Sebelum Kirim */}
-                        {attachedFile && (
-                            <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg mb-2 w-fit relative group">
-                                <div className="p-2 bg-indigo-500 text-white rounded">
-                                    {attachedFile.type.includes('image') ? <ImageIcon size={20}/> : <FileIcon size={20}/>}
-                                </div>
-                                <div className="text-xs truncate max-w-[150px]">
-                                    <p className="font-semibold truncate">{attachedFile.name}</p>
-                                    <p className="opacity-60 text-[10px]">Ready to send</p>
-                                </div>
+                        <div className="relative">
+                        {/* Panel Pop-up Upload File */}
+                        {showUploadMenu && (
+                            <div className="absolute bottom-12 left-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-50">
                                 <button 
-                                    onClick={() => setAttachedFile(null)}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"
+                                    onClick={() => { fileInputRef.current.click(); setShowUploadMenu(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                                 >
-                                    <X size={12} />
+                                    <Plus size={14} /> Upload File
                                 </button>
                             </div>
                         )}
-                        
-                        {/* Input Textarea... */}
-                        {/* Bagian Tombol Attach */}
+                    
                         <input 
                             type="file" 
                             ref={fileInputRef} 
@@ -457,12 +455,15 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                             onChange={handleFileChange}
                             accept=".pdf,.doc,.docx,image/*"
                         />
+                        
+                        {/* Tombol Paperclip dengan Hover Gray Background */}
                         <button 
-                            onClick={() => fileInputRef.current.click()}
-                            className={`p-2 transition-colors ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400 hover:text-white'}`}
+                            onClick={() => setShowUploadMenu(!showUploadMenu)}
+                            className={`p-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-700 ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400'}`}
                         >
                             <Paperclip size={18} />
-                        </button>    
+                        </button>
+                    </div>    
                             <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
     
                             <button 
