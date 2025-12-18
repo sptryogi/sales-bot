@@ -30,6 +30,11 @@ def update_session_title(session_id, new_title):
     sb = get_supabase()
     sb.table("sessions").update({"title": new_title}).eq("id", session_id).execute()
 
+def get_user_sessions(user_id):
+    sb = get_supabase()
+    res = sb.table("sessions").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
+    return res.data
+    
 # --- UPDATE FUNGSI LAMA ---
 # def save_chat(user_id, role, content, session_id): # <--- Tambah parameter session_id
 #     sb = get_supabase()
@@ -61,11 +66,10 @@ def load_chat(user_id, session_id): # <--- Tambah parameter session_id
 
 def delete_session(session_id, user_id):
     sb = get_supabase()
-    # Hapus history dulu (karena foreign key)
+    # Hapus history dulu karena ada relasi foreign key
     sb.table("chat_history").delete().eq("session_id", session_id).execute()
-    # Hapus session
-    return sb.table("sessions").delete().eq("id", session_id).eq("user_id", user_id).execute()
+    sb.table("sessions").delete().eq("id", session_id).eq("user_id", user_id).execute()
 
 def rename_session(session_id, user_id, new_title):
     sb = get_supabase()
-    return sb.table("sessions").update({"title": new_title}).eq("id", session_id).eq("user_id", user_id).execute()
+    sb.table("sessions").update({"title": new_title}).eq("id", session_id).eq("user_id", user_id).execute()
