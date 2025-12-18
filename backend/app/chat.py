@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
-from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title
+from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session, 
 from .rag import load_rag
 import tempfile
+import requests
+from .utils import get_pdf_text, get_docx_text
 
 router = APIRouter()
 client = OpenAI(
@@ -54,6 +56,22 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     history = load_chat(user.id, session_id)
 
+    file_context = ""
+    if file_metadata and file_metadata.get("url"):
+        try:
+            r = requests.get(file_metadata["url"])
+            with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                tmp.write(r.content)
+                tmp_path = tmp.name
+            
+            if "pdf" in file_metadata["type"]:
+                file_context = f"\nISI FILE USER ({file_metadata['name']}):\n" + get_pdf_text(tmp_path)
+            elif "officedocument" in file_metadata["type"]:
+                file_context = f"\nISI FILE USER ({file_metadata['name']}):\n" + get_docx_text(tmp_path)
+            os.remove(tmp_path)
+        except Exception as e:
+            print(f"Gagal membaca file: {e}")
+
     context = ""
     if mode == "json":
         context = open("storage/context.json").read()
@@ -76,6 +94,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     
     Jawab hanya berdasarkan konteks berikut:
     {context}
+    {file_context}
     """
 
     messages = [{"role": "system", "content": system_prompt}]
