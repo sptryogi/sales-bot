@@ -4,6 +4,7 @@ import json, os
 from .auth import get_current_user
 from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title
 from .rag import load_rag
+import tempfile
 
 router = APIRouter()
 client = OpenAI(
