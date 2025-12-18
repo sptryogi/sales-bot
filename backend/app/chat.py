@@ -27,12 +27,24 @@ def get_chat_history(session_id: str, user=Depends(get_current_user)):
     # Panggil fungsi load_chat yang sudah kita buat di database
     history = load_chat(user.id, session_id)
     return history
+
+@router.delete("/sessions/{session_id}")
+def remove_session(session_id: str, user=Depends(get_current_user)):
+    delete_session(session_id, user.id)
+    return {"status": "deleted"}
+
+@router.patch("/sessions/{session_id}")
+def edit_session(session_id: str, payload: dict, user=Depends(get_current_user)):
+    new_title = payload.get("title")
+    rename_session(session_id, user.id, new_title)
+    return {"status": "renamed"}
     
 @router.post("/chat")
 def chat(payload: dict, user=Depends(get_current_user)):
     mode = payload.get("mode", "rag")
     message = payload.get("message")
     session_id = payload.get("session_id") # <--- Wajib ada session_id
+    file_metadata = payload.get("file_metadata") # Ambil metadata dari frontend
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
     if not session_id:
@@ -93,7 +105,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     # save_chat(user.id, "assistant", answer)
 
     # return {"answer": answer}
-    save_chat(user.id, "user", message, session_id)
+    save_chat(user.id, "user", message, session_id, file_metadata)
     save_chat(user.id, "assistant", full_answer, session_id)
 
     # Update judul session jika ini chat pertama (logic sederhana)
