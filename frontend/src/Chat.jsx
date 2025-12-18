@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare } from 'lucide-react'
+import { MoreVertical, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -12,6 +12,11 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [messages, setMessages] = useState([]) 
   const [sessions, setSessions] = useState([]) // Daftar Room
   const [currentSessionId, setCurrentSessionId] = useState(null) // Room Aktif
+
+  const [activeMenu, setActiveMenu] = useState(null); // Untuk tracking titik tiga mana yang terbuka
+  const [attachedFile, setAttachedFile] = useState(null); // File yang akan diupload
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
@@ -170,11 +175,67 @@ export default function Chat({ session, darkMode, setDarkMode }) {
     }
   }
 
+  // --- FUNGSI FILE ---
+  const handleFileChange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+  
+      setIsUploading(true);
+      try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${session.user.id}/${fileName}`;
+  
+          // Upload ke Supabase Storage
+          const { data, error } = await supabase.storage
+              .from('chat-attachments')
+              .upload(filePath, file);
+  
+          if (error) throw error;
+  
+          // Ambil Public URL
+          const { data: { publicUrl } } = supabase.storage
+              .from('chat-attachments')
+              .getPublicUrl(filePath);
+  
+          setAttachedFile({
+              name: file.name,
+              url: publicUrl,
+              type: file.type,
+              size: file.size
+          });
+      } catch (err) {
+          alert("Gagal upload file");
+      } finally {
+          setIsUploading(false);
+      }
+  };
+  
+  // --- FUNGSI ROOM ACTIONS ---
+  const handleDeleteSession = async (id) => {
+      if (!confirm("Hapus room ini?")) return;
+      await axios.delete(`${API_URL}/sessions/${id}`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      setSessions(prev => prev.filter(s => s.id !== id));
+      if (currentSessionId === id) handleNewChat();
+  };
+  
+  const handleRenameSession = async (id) => {
+      const newTitle = prompt("Masukkan nama baru:");
+      if (!newTitle) return;
+      await axios.patch(`${API_URL}/sessions/${id}`, { title: newTitle }, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      setSessions(prev => prev.map(s => s.id === id ? { ...s, title: newTitle } : s));
+  };
+
   // Helper Membersihkan Judul di Sidebar
   const cleanTitle = (title) => {
       if(!title) return "New Chat"
       return title.replace(/[*#_]/g, '').trim()
   }
+  
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden transition-colors duration-300">
@@ -198,7 +259,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         
         <div className="flex-1 overflow-y-auto px-2 py-2">
           <div className="text-xs font-semibold text-gray-500 mb-2 px-2">History</div>
-          {sessions.map((sess) => (
+          /* {sessions.map((sess) => (
               <button 
                 key={sess.id}
                 onClick={() => loadChatHistory(sess.id)}
@@ -210,6 +271,42 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                 <MessageSquare size={14} className="flex-shrink-0 opacity-70"/>
                 <span className="truncate">{cleanTitle(sess.title)}</span>
               </button>
+          ))} */
+          {sessions.map((sess) => (
+            <div key={sess.id} className="relative group px-2">
+              <button 
+                onClick={() => loadChatHistory(sess.id)}
+                className={`w-full text-left px-3 py-2 text-sm rounded-md truncate flex items-center justify-between
+                    ${currentSessionId === sess.id ? 'bg-gray-200 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-900'}`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                    <MessageSquare size={14} className="flex-shrink-0 opacity-70"/>
+                    <span className="truncate">{cleanTitle(sess.title)}</span>
+                </div>
+                
+                {/* Tombol Titik Tiga (Muncul saat hover atau jika menu aktif) */}
+                <div className="flex items-center">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === sess.id ? null : sess.id); }}
+                      className="p-1 hover:bg-gray-300 dark:hover:bg-gray-700 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <MoreVertical size={14} />
+                    </button>
+                </div>
+              </button>
+          
+              {/* Dropdown Menu */}
+              {activeMenu === sess.id && (
+                  <div className="absolute right-2 top-10 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-30 py-1">
+                      <button onClick={() => { handleRenameSession(sess.id); setActiveMenu(null); }} className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <Edit3 size={12} /> Rename
+                      </button>
+                      <button onClick={() => { handleDeleteSession(sess.id); setActiveMenu(null); }} className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <Trash2 size={12} /> Delete
+                      </button>
+                  </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -280,6 +377,23 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                         : 'bg-transparent text-gray-800 dark:text-gray-100 rounded-3xl rounded-bl-sm'}
                     `}
                 >
+                  {msg.file_metadata && (
+                      <a 
+                          href={msg.file_metadata.url} 
+                          target="_blank" 
+                          className="flex items-center gap-3 p-3 mb-3 bg-black/10 dark:bg-white/10 rounded-xl border border-white/10 hover:bg-black/20 transition-colors no-underline"
+                      >
+                          {msg.file_metadata.type.includes('image') ? (
+                              <img src={msg.file_metadata.url} className="w-12 h-12 object-cover rounded" />
+                          ) : (
+                              <div className="p-2 bg-indigo-600 rounded"><FileIcon size={20} className="text-white"/></div>
+                          )}
+                          <div className="text-sm">
+                              <p className="font-medium text-gray-900 dark:text-white truncate max-w-[200px]">{msg.file_metadata.name}</p>
+                              <p className="text-[10px] opacity-60">Click to view file</p>
+                          </div>
+                      </a>
+                  )}
                     {msg.role === 'user' ? (
                         msg.content
                     ) : (
@@ -327,11 +441,44 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                  />
 
                  <div className="flex justify-between items-center mt-1">
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                         <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                             <Paperclip size={18} />
-                        </button>
-                        
+                        </button> */}
+                    {/* Preview File Sebelum Kirim */}
+                    {attachedFile && (
+                        <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg mb-2 w-fit relative group">
+                            <div className="p-2 bg-indigo-500 text-white rounded">
+                                {attachedFile.type.includes('image') ? <ImageIcon size={20}/> : <FileIcon size={20}/>}
+                            </div>
+                            <div className="text-xs truncate max-w-[150px]">
+                                <p className="font-semibold truncate">{attachedFile.name}</p>
+                                <p className="opacity-60 text-[10px]">Ready to send</p>
+                            </div>
+                            <button 
+                                onClick={() => setAttachedFile(null)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    )}
+                    
+                    {/* Input Textarea... */}
+                    {/* Bagian Tombol Attach */}
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        onChange={handleFileChange}
+                        accept=".pdf,.doc,.docx,image/*"
+                    />
+                    <button 
+                        onClick={() => fileInputRef.current.click()}
+                        className={`p-2 transition-colors ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400 hover:text-white'}`}
+                    >
+                        <Paperclip size={18} />
+                    </button>    
                         <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
                         <button 
