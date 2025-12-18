@@ -441,70 +441,68 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                  />
 
                  <div className="flex justify-between items-center mt-1">
-                    {/* <div className="flex items-center gap-2">
-                        <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <div className="flex items-center gap-2">
+                        {/* Preview File Sebelum Kirim */}
+                        {attachedFile && (
+                            <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg mb-2 w-fit relative group">
+                                <div className="p-2 bg-indigo-500 text-white rounded">
+                                    {attachedFile.type.includes('image') ? <ImageIcon size={20}/> : <FileIcon size={20}/>}
+                                </div>
+                                <div className="text-xs truncate max-w-[150px]">
+                                    <p className="font-semibold truncate">{attachedFile.name}</p>
+                                    <p className="opacity-60 text-[10px]">Ready to send</p>
+                                </div>
+                                <button 
+                                    onClick={() => setAttachedFile(null)}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        
+                        {/* Input Textarea... */}
+                        {/* Bagian Tombol Attach */}
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            onChange={handleFileChange}
+                            accept=".pdf,.doc,.docx,image/*"
+                        />
+                        <button 
+                            onClick={() => fileInputRef.current.click()}
+                            className={`p-2 transition-colors ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400 hover:text-white'}`}
+                        >
                             <Paperclip size={18} />
-                        </button> */}
-                    {/* Preview File Sebelum Kirim */}
-                    {attachedFile && (
-                        <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg mb-2 w-fit relative group">
-                            <div className="p-2 bg-indigo-500 text-white rounded">
-                                {attachedFile.type.includes('image') ? <ImageIcon size={20}/> : <FileIcon size={20}/>}
-                            </div>
-                            <div className="text-xs truncate max-w-[150px]">
-                                <p className="font-semibold truncate">{attachedFile.name}</p>
-                                <p className="opacity-60 text-[10px]">Ready to send</p>
-                            </div>
+                        </button>    
+                            <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
+    
                             <button 
-                                onClick={() => setAttachedFile(null)}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"
+                                onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
+                                className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                             >
-                                <X size={12} />
+                                {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
+                                <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
                             </button>
                         </div>
-                    )}
-                    
-                    {/* Input Textarea... */}
-                    {/* Bagian Tombol Attach */}
-                    <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
-                        onChange={handleFileChange}
-                        accept=".pdf,.doc,.docx,image/*"
-                    />
-                    <button 
-                        onClick={() => fileInputRef.current.click()}
-                        className={`p-2 transition-colors ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400 hover:text-white'}`}
-                    >
-                        <Paperclip size={18} />
-                    </button>    
-                        <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
-
+    
                         <button 
-                            onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
-                            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                            onClick={handleSend}
+                            disabled={isLoading || !input.trim()}
+                            className={`p-2 rounded-lg transition-all ${
+                            input.trim() 
+                            ? 'bg-indigo-600 dark:bg-white text-white dark:text-black hover:opacity-90' 
+                            : 'bg-gray-200 dark:bg-gray-600 text-gray-400 cursor-not-allowed'
+                            }`}
                         >
-                            {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
-                            <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
+                            {isLoading ? (
+                                <div className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <Send size={18} />
+                            )}
                         </button>
-                    </div>
-
-                    <button 
-                        onClick={handleSend}
-                        disabled={isLoading || !input.trim()}
-                        className={`p-2 rounded-lg transition-all ${
-                        input.trim() 
-                        ? 'bg-indigo-600 dark:bg-white text-white dark:text-black hover:opacity-90' 
-                        : 'bg-gray-200 dark:bg-gray-600 text-gray-400 cursor-not-allowed'
-                        }`}
-                    >
-                        {isLoading ? (
-                            <div className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <Send size={18} />
-                        )}
-                    </button>
+                    
                  </div>
               </div>
               
