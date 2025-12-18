@@ -18,13 +18,24 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [showSidebar, setShowSidebar] = useState(true)
   
   const messagesEndRef = useRef(null)
+  const scrollAreaRef = useRef(null) // Ref untuk div yang bisa di-scroll
 
   // --- LOGIC SCROLL ---
+  // const scrollToBottom = () => {
+  //   // Timeout kecil memastikan DOM sudah render bubble baru sebelum scroll
+  //   setTimeout(() => {
+  //       messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+  //   }, 100)
+  // }
   const scrollToBottom = () => {
-    // Timeout kecil memastikan DOM sudah render bubble baru sebelum scroll
-    setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
-    }, 100)
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current;
+      // Gunakan scrollTo agar lebih presisi dan tuntas
+      scrollContainer.scrollTo({
+        top: scrollContainer.scrollHeight,
+        behavior: "smooth" // Gunakan 'instant' jika ingin tanpa delay sama sekali
+      });
+    }
   }
   useEffect(scrollToBottom, [messages])
 
@@ -244,7 +255,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:pt-12 pb-40"> 
+        <div
+          ref={scrollAreaRef}
+          className="flex-1 overflow-y-auto custom-scrollbar p-4 md:pt-12 pb-40"> 
           {messages.length === 0 && (
              <div className="h-full flex flex-col items-center justify-center text-gray-800 dark:text-gray-100 transition-colors">
                 <div className="bg-gray-100 dark:bg-white p-4 rounded-full mb-6 shadow-lg">
