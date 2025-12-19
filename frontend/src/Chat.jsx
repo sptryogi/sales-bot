@@ -392,7 +392,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                   {msg.file_metadata.name}
                               </p>
                               <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium group-hover/file:underline">
-                                  Klik untuk mengunduh
+                                  Preview
                               </p>
                           </div>
                       </a>
