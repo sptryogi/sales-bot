@@ -335,14 +335,22 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         
         {/* Header Toggle */}
         <div className="absolute top-0 left-0 p-4 z-10 flex gap-2">
-            {!showSidebar && (
+            <button 
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+              title={showSidebar ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
+            >
+              {showSidebar ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+            </button>
+            {/* /* {!showSidebar && (
                 <button 
                     onClick={() => setShowSidebar(true)}
                     className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                     <PanelLeftOpen size={24} />
                 </button>
-            )}
+            )} */ */}
+          
         </div>
 
         {/* Chat Messages */}
