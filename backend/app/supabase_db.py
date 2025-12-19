@@ -36,22 +36,25 @@ def get_user_sessions(user_id):
     return res.data
     
 # --- UPDATE FUNGSI LAMA ---
-# def save_chat(user_id, role, content, session_id): # <--- Tambah parameter session_id
+# def save_chat(user_id, role, content, session_id, file_metadata=None): 
 #     sb = get_supabase()
-#     sb.table("chat_history").insert({
+#     data = {
 #         "user_id": user_id,
 #         "role": role,
 #         "content": content,
-#         "session_id": session_id, # <--- Simpan ID sesi
-#     }).execute()
-def save_chat(user_id, role, content, session_id, file_metadata=None): 
+#         "session_id": session_id,
+#         "file_metadata": file_metadata # Simpan metadata file jika ada
+#     }
+#     sb.table("chat_history").insert(data).execute()
+
+def save_chat(user_id, role, content, session_id=None, file_metadata=None):
     sb = get_supabase()
     data = {
         "user_id": user_id,
         "role": role,
         "content": content,
         "session_id": session_id,
-        "file_metadata": file_metadata # Simpan metadata file jika ada
+        "file_metadata": file_metadata # Pastikan kolom ini sudah ada di tabel chat_history (JSONB)
     }
     sb.table("chat_history").insert(data).execute()
 
