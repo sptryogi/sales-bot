@@ -117,6 +117,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
     const userMessage = input
     setInput('')
     const currentFile = attachedFile; // Simpan file ke variabel lokal
+
+    setAttachedFile(null)    // INI KUNCINYA: Menghilangkan preview file di atas input
+    setShowUploadMenu(false) // Pastikan menu upload tertutup
     
     // UI Optimistic Update (Tampilkan pesan user duluan)
     const tempMessages = [...messages, { role: 'user', content: userMessage, file_metadata: currentFile }]
@@ -130,16 +133,13 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         mode: mode,
         message: userMessage,
         session_id: currentSessionId, // Kirim ID (null jika new chat)
-        file_metadata: attachedFile
+        file_metadata: currentFile
       }, {
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json'
         }
       });
-
-      // Setelah berhasil kirim:
-      setAttachedFile(null);
 
       const fullAnswer = response.data.answer
       const returnedSessionId = response.data.session_id
