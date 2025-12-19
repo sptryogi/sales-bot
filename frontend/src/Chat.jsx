@@ -362,7 +362,15 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           <div className="max-w-3xl mx-auto space-y-6">
             {messages.map((msg, idx) => (
                 <div key={idx} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-
+                
+                <div 
+                    className={`
+                        px-5 py-3.5 max-w-[85%] md:max-w-[80%] text-[15px] leading-7 shadow-sm transition-colors
+                        ${msg.role === 'user' 
+                        ? 'bg-gray-200 dark:bg-[#3C3C3C] text-gray-900 dark:text-white rounded-3xl rounded-br-sm' 
+                        : 'bg-transparent text-gray-800 dark:text-gray-100 rounded-3xl rounded-bl-sm'}
+                    `}
+                >
                   {msg.file_metadata && (
                       <a 
                           href={msg.file_metadata.url} 
@@ -389,15 +397,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                           </div>
                       </a>
                   )}
-                
-                <div 
-                    className={`
-                        px-5 py-3.5 max-w-[85%] md:max-w-[80%] text-[15px] leading-7 shadow-sm transition-colors
-                        ${msg.role === 'user' 
-                        ? 'bg-gray-200 dark:bg-[#3C3C3C] text-gray-900 dark:text-white rounded-3xl rounded-br-sm' 
-                        : 'bg-transparent text-gray-800 dark:text-gray-100 rounded-3xl rounded-bl-sm'}
-                    `}
-                >
           
                     {msg.role === 'user' ? (
                         msg.content
