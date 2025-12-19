@@ -342,14 +342,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
             >
               {showSidebar ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
             </button>
-            {/* /* {!showSidebar && (
-                <button 
-                    onClick={() => setShowSidebar(true)}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                    <PanelLeftOpen size={24} />
-                </button>
-            )} */ */}
+  
           
         </div>
 
