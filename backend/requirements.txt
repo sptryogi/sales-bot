@@ -13,3 +13,4 @@ sentence-transformers
 openai
 supabase
 python-jose
+ddgs
