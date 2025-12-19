@@ -138,6 +138,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         }
       });
 
+      // Setelah berhasil kirim:
+      setAttachedFile(null);
+
       const fullAnswer = response.data.answer
       const returnedSessionId = response.data.session_id
 
@@ -169,9 +172,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           return updated
         })
       }
-
-      // Setelah berhasil kirim:
-      setAttachedFile(null);
     
     } catch (error) {
       console.error("Error:", error)
@@ -362,6 +362,33 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           <div className="max-w-3xl mx-auto space-y-6">
             {messages.map((msg, idx) => (
                 <div key={idx} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+
+                  {msg.file_metadata && (
+                      <a 
+                          href={msg.file_metadata.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 mb-3 bg-black/5 dark:bg-white/10 rounded-2xl border border-black/5 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all no-underline group/file"
+                      >
+                          {msg.file_metadata.type?.includes('image') ? (
+                              <div className="relative w-12 h-12 flex-shrink-0">
+                                  <img src={msg.file_metadata.url} className="w-full h-full object-cover rounded-lg shadow-sm" alt="preview" />
+                              </div>
+                          ) : (
+                              <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-sm">
+                                  <FileIcon size={20} />
+                              </div>
+                          )}
+                          <div className="text-sm overflow-hidden">
+                              <p className="font-semibold text-gray-900 dark:text-white truncate max-w-[200px] mb-0.5">
+                                  {msg.file_metadata.name}
+                              </p>
+                              <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium group-hover/file:underline">
+                                  Klik untuk mengunduh
+                              </p>
+                          </div>
+                      </a>
+                  )}
                 
                 <div 
                     className={`
@@ -371,23 +398,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                         : 'bg-transparent text-gray-800 dark:text-gray-100 rounded-3xl rounded-bl-sm'}
                     `}
                 >
-                  {msg.file_metadata && (
-                      <a 
-                          href={msg.file_metadata.url} 
-                          target="_blank" 
-                          className="flex items-center gap-3 p-3 mb-3 bg-black/10 dark:bg-white/10 rounded-xl border border-white/10 hover:bg-black/20 transition-colors no-underline"
-                      >
-                          {msg.file_metadata.type.includes('image') ? (
-                              <img src={msg.file_metadata.url} className="w-12 h-12 object-cover rounded" />
-                          ) : (
-                              <div className="p-2 bg-indigo-600 rounded"><FileIcon size={20} className="text-white"/></div>
-                          )}
-                          <div className="text-sm">
-                              <p className="font-medium text-gray-900 dark:text-white truncate max-w-[200px]">{msg.file_metadata.name}</p>
-                              <p className="text-[10px] opacity-60">Click to view file</p>
-                          </div>
-                      </a>
-                  )}
+          
                     {msg.role === 'user' ? (
                         msg.content
                     ) : (
