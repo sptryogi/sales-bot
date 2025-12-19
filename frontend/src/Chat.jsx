@@ -18,6 +18,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   const [showUploadMenu, setShowUploadMenu] = useState(false);
+  const [webSearch, setWebSearch] = useState(false); // State untuk Web Search
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
@@ -342,8 +343,15 @@ export default function Chat({ session, darkMode, setDarkMode }) {
             >
               {showSidebar ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
             </button>
+            /* {!showSidebar && ( */
+                // <button 
+                    // onClick={() => setShowSidebar(true)}
+                    // className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                // >
+                    // <PanelLeftOpen size={24} />
+                // </button>
+            // )}
   
-          
         </div>
 
         {/* Chat Messages */}
@@ -519,6 +527,19 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                             >
                                 {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
                                 <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
+                            </button>
+
+                            {/* --- TAMBAHKAN TOMBOL WEB SEARCH DI SINI --- */}
+                            <button 
+                                onClick={() => setWebSearch(!webSearch)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
+                                    webSearch 
+                                    ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] ring-2 ring-indigo-400' 
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                                }`}
+                            >
+                                <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
+                                <span>Web Search</span>
                             </button>
                         </div>
     
