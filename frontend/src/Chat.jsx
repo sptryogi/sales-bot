@@ -422,26 +422,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
             <div ref={messagesEndRef} className="h-4" /> 
           </div>
         </div>
-        {/* --- TAMBAHKAN KODE INI DI ATAS TEXTAREA --- */}
-        {attachedFile && (
-          <div className="flex items-center gap-3 p-2 bg-gray-100 dark:bg-gray-700 rounded-xl mb-3 w-fit border border-gray-300 dark:border-gray-600 relative animate-in fade-in slide-in-from-bottom-2">
-            <div className="p-2 bg-indigo-600 text-white rounded-lg">
-              {attachedFile.type.includes('image') ? <ImageIcon size={20} /> : <FileIcon size={20} />}
-            </div>
-            <div className="flex flex-col pr-6">
-              <span className="text-xs font-semibold truncate max-w-[120px] dark:text-white">
-                {attachedFile.name}
-              </span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">Siap dikirim</span>
-            </div>
-            <button 
-              onClick={() => setAttachedFile(null)}
-              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-md"
-            >
-              <X size={12} />
-            </button>
-          </div>
-        )}
 
         {/* --- INPUT AREA --- */}
         <div className="absolute bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 pb-6 transition-colors duration-300">
