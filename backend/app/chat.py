@@ -7,6 +7,7 @@ from .rag import load_rag
 import tempfile
 import requests
 from .utils import get_pdf_text, get_docx_text
+from ddgs import DDGS # Import di paling atas
 
 router = APIRouter()
 client = OpenAI(
@@ -48,6 +49,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     message = payload.get("message")
     session_id = payload.get("session_id") # <--- Wajib ada session_id
     file_metadata = payload.get("file_metadata") # Ambil metadata dari frontend
+    web_search_enabled = payload.get("web_search", False) # Ambil flag web_search
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
     if not session_id:
@@ -55,6 +57,16 @@ def chat(payload: dict, user=Depends(get_current_user)):
         session_id = new_sess['id']
 
     history = load_chat(user.id, session_id)
+
+    context_web = ""
+    if web_search_enabled:
+        try:
+            with DDGS() as ddgs:
+                # Cari 3 hasil teratas dari web
+                results = [r for r in ddgs.text(message, max_results=3)]
+                context_web = "\n[REFERENSI WEB TERBARU]:\n" + json.dumps(results, indent=2)
+        except Exception as e:
+            print(f"Web Search Error: {e}")
 
     file_context = ""
     if file_metadata and file_metadata.get("url"):
@@ -95,6 +107,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     Jawab hanya berdasarkan konteks berikut:
     {context}
     {file_context}
+    {context_web}
     """
 
     messages = [{"role": "system", "content": system_prompt}]
