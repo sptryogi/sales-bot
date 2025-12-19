@@ -134,7 +134,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         mode: mode,
         message: userMessage,
         session_id: currentSessionId, // Kirim ID (null jika new chat)
-        file_metadata: currentFile
+        file_metadata: currentFile,
+        web_search: webSearch
       }, {
         headers: {
           'Authorization': `Bearer ${access_token}`,
