@@ -51,8 +51,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   
   // 1. Ambil daftar room saat pertama load
   useEffect(() => {
-    if (session) fetchSessions();
-  }, [session])
+    fetchSessions()
+  }, [])
 
   const fetchSessions = async () => {
     setIsSidebarLoading(true); // Mulai loading sidebar
