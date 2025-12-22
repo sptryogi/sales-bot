@@ -50,6 +50,7 @@ export default function Auth({ darkMode, setDarkMode }) {
           options: {
             data: {
               full_name: fullName, // Simpan Nama
+              phone: phone,
               phone_number: phone  // Simpan No. HP
             },
               // URL ini adalah tujuan user setelah klik link di email
