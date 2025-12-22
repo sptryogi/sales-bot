@@ -429,10 +429,10 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                     <Bot size={18} className="text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div className="px-5 py-4 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center">
-                    <div className="typing-dots">
-                      <div className="dot"></div>
-                      <div className="dot"></div>
-                      <div className="dot"></div>
+                    <div className={styles['typing-dots']}>
+                      <div className={styles.dot}></div>
+                      <div className={styles.dot}></div>
+                      <div className={styles.dot}></div>
                     </div>
                   </div>
                 </div>
