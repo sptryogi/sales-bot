@@ -421,6 +421,18 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                 </div>
                 </div>
             ))}
+            {isLoading && (
+                <div className="flex w-full justify-start animate-in fade-in slide-in-from-left-2">
+                    <div className="px-5 py-4 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+                        <Bot size={18} className="text-indigo-500" />
+                        <div className="typing-dots">
+                            <div className="dot"></div>
+                            <div className="dot"></div>
+                            <div className="dot"></div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Dummy element untuk scroll anchor dengan margin bawah agar tidak kepotong */}
             <div ref={messagesEndRef} className="h-4" /> 
           </div>
