@@ -8,6 +8,8 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [password, setPassword] = useState('')
   const [isLogin, setIsLogin] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
 
   // const handleAuth = async (e) => {
   //   e.preventDefault()
@@ -46,6 +48,10 @@ export default function Auth({ darkMode, setDarkMode }) {
           email, 
           password,
           options: {
+            data: {
+              full_name: fullName, // Simpan Nama
+              phone_number: phone  // Simpan No. HP
+            }
               // URL ini adalah tujuan user setelah klik link di email
               emailRedirectTo: window.location.origin 
           }
@@ -94,7 +100,32 @@ export default function Auth({ darkMode, setDarkMode }) {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleAuth}>
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-md shadow-sm">
+            {!isLogin && (
+              <>
+                <div>
+                  <input
+                    type="text"
+                    required
+                    className="block w-full rounded-md border-0 bg-gray-50 dark:bg-gray-700 py-2.5 px-3 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Nama Lengkap"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <input
+                    type="tel"
+                    required
+                    className="block w-full rounded-md border-0 bg-gray-50 dark:bg-gray-700 py-2.5 px-3 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Nomor HP (Contoh: 0812...)"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+            
             <div>
               <input
                 type="email"
