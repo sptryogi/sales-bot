@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare } from 'lucide-react'
+import { MoreVertical, Loader2, Bot, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -422,17 +422,22 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                 </div>
             ))}
             {isLoading && (
-                <div className="flex w-full justify-start animate-in fade-in slide-in-from-left-2">
-                    <div className="px-5 py-4 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-                        <Bot size={18} className="text-indigo-500" />
-                        <div className="typing-dots">
-                            <div className="dot"></div>
-                            <div className="dot"></div>
-                            <div className="dot"></div>
-                        </div>
+              <div className="flex w-full justify-start mb-4 animate-in fade-in slide-in-from-left-2">
+                <div className="flex items-start gap-3 max-w-[80%]">
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                    <Bot size={18} className="text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="px-5 py-4 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center">
+                    <div className="typing-dots">
+                      <div className="dot"></div>
+                      <div className="dot"></div>
+                      <div className="dot"></div>
                     </div>
+                  </div>
                 </div>
+              </div>
             )}
+            
             {/* Dummy element untuk scroll anchor dengan margin bawah agar tidak kepotong */}
             <div ref={messagesEndRef} className="h-4" /> 
           </div>
