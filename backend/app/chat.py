@@ -42,6 +42,38 @@ def edit_session(session_id: str, payload: dict, user=Depends(get_current_user))
     new_title = payload.get("title")
     rename_session(session_id, user.id, new_title)
     return {"status": "renamed"}
+
+def get_web_context(query):
+    # TIER 1: SerpApi
+    serp_key = os.getenv("SERPAPI_API_KEY")
+    if serp_key:
+        try:
+            url = f"https://serpapi.com/search?q={query}&api_key={serp_key}&num=3"
+            res = requests.get(url, timeout=5).json()
+            if "organic_results" in res:
+                return "[SERPAPI SOURCE]: " + json.dumps(res["organic_results"], indent=2)
+        except Exception as e:
+            print(f"SerpApi Gagal: {e}")
+
+    # TIER 2: NewsData.io (Fallback)
+    news_key = os.getenv("NEWSDATA_API_KEY")
+    if news_key:
+        try:
+            url = f"https://newsdata.io/api/1/news?apikey={news_key}&q={query}&language=id"
+            res = requests.get(url, timeout=5).json()
+            if res.get("status") == "success":
+                return "[NEWSDATA SOURCE]: " + json.dumps(res["results"][:3], indent=2)
+        except Exception as e:
+            print(f"NewsData Gagal: {e}")
+
+    # TIER 3: DuckDuckGo (Last Resort)
+    try:
+        with DDGS() as ddgs:
+            results = [r for r in ddgs.text(query, max_results=3)]
+            return "[DDGS SOURCE]: " + json.dumps(results, indent=2)
+    except Exception as e:
+        print(f"DDGS Gagal: {e}")
+        return ""
     
 @router.post("/chat")
 def chat(payload: dict, user=Depends(get_current_user)):
@@ -60,13 +92,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     context_web = ""
     if web_search_enabled:
-        try:
-            with DDGS() as ddgs:
-                # Cari 3 hasil teratas dari web
-                results = [r for r in ddgs.text(message, max_results=3)]
-                context_web = "\n[REFERENSI WEB TERBARU]:\n" + json.dumps(results, indent=2)
-        except Exception as e:
-            print(f"Web Search Error: {e}")
+        context_web = get_web_context(message)
 
     file_context = ""
     if file_metadata and file_metadata.get("url"):
