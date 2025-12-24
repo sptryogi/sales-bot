@@ -19,7 +19,7 @@ def build_rag():
     chunks = splitter.split_text(corpus)
 
     embed = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L12-v2"
+        model_name="intfloat/multilingual-e5-small"
     )
 
     vs = FAISS.from_texts(chunks, embed)
@@ -28,7 +28,7 @@ def build_rag():
 def load_rag():
     from langchain_huggingface import HuggingFaceEmbeddings
     embed = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L12-v2"
+        model_name="intfloat/multilingual-e5-small"
     )
     return FAISS.load_local(
         os.path.join(STORAGE, "faiss_index"),
