@@ -148,6 +148,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       const fullAnswer = response.data.answer
       const returnedSessionId = response.data.session_id
 
+      setIsLoading(false)
+
       // PENTING: Jika tadinya New Chat (null), sekarang kita punya ID dari backend
       // Kita harus simpan ID ini agar chat berikutnya masuk ke room yang sama
       if (!currentSessionId) {
@@ -181,7 +183,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       console.error("Error:", error)
       setMessages(prev => [...prev, { role: 'assistant', content: "Maaf, terjadi kesalahan koneksi." }])
     } finally {
-      setIsLoading(false)
     }
   }
 
