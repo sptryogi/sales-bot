@@ -186,3 +186,37 @@ def chat(payload: dict, user=Depends(get_current_user)):
          update_session_title(session_id, clean_title)
 
     return {"answer": full_answer, "session_id": session_id}
+
+@router.get("/evaluate-sales")
+def evaluate_sales(user=Depends(get_current_user)):
+    from .supabase_db import get_user_performance_history
+    history = get_user_performance_history(user.id)
+    
+    if not history:
+        return {"evaluation": "Belum ada history untuk dievaluasi."}
+
+    formatted_history = "\n".join([f"{h['role']}: {h['content']}" for h in history])
+
+    # 3. Prompt Khusus Evaluasi
+    eval_prompt = f"""
+    Kamu adalah Manajer Penjualan Senior. Tugasmu adalah mengevaluasi kinerja Sales berdasarkan percakapan berikut:
+    
+    PERCAKAPAN:
+    {formatted_history}
+    
+    Berikan laporan evaluasi singkat yang berisi:
+    1. Skor Persuasi (1-10)
+    2. Skor Pengetahuan Produk (1-10)
+    3. Analisis Kekuatan & Kelemahan
+    4. Analisis kesimpulan singkat apa yang kurang (apakah kurang persuasif, kurang data, dll)
+    5. Saran Perbaikan spesifik untuk chat berikutnya agar closing lebih cepat.
+    
+    Gunakan gaya bahasa profesional namun memotivasi.
+    """
+
+    res = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[{"role": "system", "content": eval_prompt}]
+    )
+    
+    return {"evaluation": res.choices[0].message.content}
