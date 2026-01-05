@@ -36,6 +36,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const messagesEndRef = useRef(null)
   const scrollAreaRef = useRef(null) // Ref untuk div yang bisa di-scroll
 
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
+
   // --- LOGIC SCROLL ---
   // const scrollToBottom = () => {
   //   // Timeout kecil memastikan DOM sudah render bubble baru sebelum scroll
@@ -491,6 +493,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                 }}
                             >
                                 {msg.content}
+                                {(msg.content || '').replace(/<br\s*\/?>|<\/br>|<br\s*>\s*<\/br>/gi, '\n')}
                             </ReactMarkdown>
                         </div>
                     )}
@@ -575,100 +578,85 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                     style={{ minHeight: '44px' }}
                  /> */}
 
-                 <div className="flex justify-between items-center mt-1">
-                    <div className="flex gap-2 mb-2 overflow-x-auto pb-2 no-scrollbar flex-nowrap items-center">
+                 <div className="flex justify-between items-center mt-2 gap-2">
+                    <div className="flex items-center gap-1">
+                        {/* Tombol Upload File (Tetap Ada) */}
                         <div className="relative">
-                        {/* Panel Pop-up Upload File */}
-                        {showUploadMenu && (
-                            <div className="absolute bottom-12 left-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-50">
-                                <button 
-                                    onClick={() => { fileInputRef.current.click(); setShowUploadMenu(false); }}
-                                    className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                >
-                                    <Plus size={14} /> Upload File
-                                </button>
-                            </div>
-                        )}
-                    
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            onChange={handleFileChange}
-                            accept=".pdf,.doc,.docx,image/*"
-                        />
-                        
-                        {/* Tombol Paperclip dengan Hover Gray Background */}
-                        <button 
-                            onClick={() => setShowUploadMenu(!showUploadMenu)}
-                            className={`p-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-700 ${isUploading ? 'animate-pulse text-indigo-500' : 'text-gray-500 dark:text-gray-400'}`}
-                        >
-                            <Paperclip size={18} />
-                        </button>
-                    </div>    
-                            <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
-    
+                            {showUploadMenu && (
+                                <div className="absolute bottom-12 left-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-50">
+                                    <button 
+                                        onClick={() => { fileInputRef.current.click(); setShowUploadMenu(false); }}
+                                        className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                                    >
+                                        <Plus size={14} /> Upload File
+                                    </button>
+                                </div>
+                            )}
+                            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.doc,.docx,image/*" />
                             <button 
-                                onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
-                                className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                onClick={() => { setShowUploadMenu(!showUploadMenu); setShowToolsMenu(false); }}
+                                className="p-2.5 rounded-xl text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
                             >
-                                {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
-                                <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
-                            </button>
-
-                            {/* --- TAMBAHKAN TOMBOL WEB SEARCH DI SINI --- */}
-                            <button 
-                                onClick={() => setWebSearch(!webSearch)}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
-                                    webSearch 
-                                    ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] ring-2 ring-indigo-400' 
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
-                                }`}
-                            >
-                                <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
-                                <span>Web Search</span>
-                            </button>
-
-                            <button 
-                                onClick={toggleGeoLocation}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
-                                    geoLocation 
-                                    ? 'bg-teal-600 text-white shadow-[0_0_15px_rgba(20,184,166,0.5)] ring-2 ring-teal-400' 
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
-                                }`}
-                            >
-                                <div className={`w-2 h-2 rounded-full ${geoLocation ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
-                                <MapPin size={14} />
-                                <span>{geoLocation && locationInfo ? locationInfo : "Location"}</span>
-                            </button>
-
-                            {/* TAMBAHKAN TOMBOL SALES REPORT INI */}
-                            <button 
-                                onClick={handleEvaluate}
-                                disabled={isEvaluating}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all border border-indigo-100 dark:border-indigo-800"
-                            >
-                                {isEvaluating ? <Loader2 size={14} className="animate-spin" /> : <Award size={14} />}
-                                <span>{isEvaluating ? "Analyzing..." : "Sales Report"}</span>
+                                <Paperclip size={20} />
                             </button>
                         </div>
-    
-                        <button 
-                            onClick={handleSend}
-                            disabled={isLoading || !input.trim()}
-                            className={`p-2 rounded-lg transition-all ${
-                            input.trim() 
-                            ? 'bg-indigo-600 dark:bg-white text-white dark:text-black hover:opacity-90' 
-                            : 'bg-gray-200 dark:bg-gray-600 text-gray-400 cursor-not-allowed'
-                            }`}
-                        >
-                            {isLoading ? (
-                                <div className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <Send size={18} />
+                
+                        {/* --- TOMBOL ALAT (GROUPING) --- */}
+                        <div className="relative">
+                            {showToolsMenu && (
+                                <div className="absolute bottom-12 left-0 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2">
+                                    <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fitur Tambahan</div>
+                                    
+                                    {/* Web Search */}
+                                    <button onClick={() => setWebSearch(!webSearch)} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${webSearch ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
+                                            <span>Web Search</span>
+                                        </div>
+                                        {webSearch && <div className="text-[10px] bg-indigo-600 text-white px-1.5 rounded-full">ON</div>}
+                                    </button>
+                
+                                    {/* Geolocation */}
+                                    <button onClick={toggleGeoLocation} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${geoLocation ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <MapPin size={16} className={geoLocation ? 'text-teal-600' : ''} />
+                                            <span className="truncate max-w-[120px]">{geoLocation && locationInfo ? locationInfo : "Location"}</span>
+                                        </div>
+                                    </button>
+                
+                                    {/* Sales Report */}
+                                    <button onClick={handleEvaluate} disabled={isEvaluating} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                                        {isEvaluating ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />}
+                                        <span>Sales Report</span>
+                                    </button>
+                                </div>
                             )}
-                        </button>
-                    
+                            
+                            <button 
+                                onClick={() => { setShowToolsMenu(!showToolsMenu); setShowUploadMenu(false); }}
+                                className={`p-2.5 rounded-xl transition-all ${showToolsMenu ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                            >
+                                <Plus size={22} className={`transition-transform duration-300 ${showToolsMenu ? 'rotate-45' : ''}`} />
+                            </button>
+                        </div>
+                    </div>
+                
+                    {/* --- TOMBOL KIRIM (DIPERBESAR & SEJAJAR) --- */}
+                    <button 
+                        onClick={handleSend}
+                        disabled={isLoading || !input.trim()}
+                        className={`flex items-center justify-center p-3 rounded-xl transition-all shadow-sm ${
+                            input.trim() 
+                            ? 'bg-indigo-600 text-white hover:scale-105 active:scale-95 shadow-indigo-200 dark:shadow-none' 
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                        }`}
+                    >
+                        {isLoading ? (
+                            <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                            <Send size={22} />
+                        )}
+                    </button>
                  </div>
               </div>
               
