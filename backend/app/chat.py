@@ -82,6 +82,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     session_id = payload.get("session_id") # <--- Wajib ada session_id
     file_metadata = payload.get("file_metadata") # Ambil metadata dari frontend
     web_search_enabled = payload.get("web_search", False) # Ambil flag web_search
+    location_data = payload.get("location_data")
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
     if not session_id:
@@ -118,6 +119,8 @@ def chat(payload: dict, user=Depends(get_current_user)):
         docs = vs.similarity_search(message, k=3)
         context = "\n".join([d.page_content for d in docs])
 
+    loc_context = f"\nLOKASI USER SAAT INI: {location_data}" if location_data else ""
+
     system_prompt = f"""
     Kamu adalah 'MediSales Assistant', AI pendamping untuk tim sales obat.
 
@@ -135,11 +138,14 @@ def chat(payload: dict, user=Depends(get_current_user)):
     - Jika data tidak ada, katakan bahwa informasi belum tersedia
     - Boleh menyertakan contoh script / kalimat bantu untuk sales
     - Jangan menyebutkan sumber atau kata (ex: berdasarkan konteks..) 
+    - Jika lokasi user tersedia, gunakan informasi tersebut untuk menyesuaikan strategi pemasaran, 
+      misalnya menyebutkan tren lokal, ketersediaan produk di wilayah tersebut, atau budaya setempat agar argumenmu lebih persuasif.
 
     Jawab hanya berdasarkan konteks berikut:
     {context}
     {file_context}
     {context_web}
+    Lokasi User: {loc_context}
     """
 
     messages = [{"role": "system", "content": system_prompt}]
