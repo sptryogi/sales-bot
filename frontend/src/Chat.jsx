@@ -54,27 +54,47 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   // --- LOGIC LOAD SESSIONS & HISTORY ---
   
   // 1. Ambil daftar room saat pertama load
-  useEffect(() => {
-    fetchSessions()
-  }, [])
+  // useEffect(() => {
+  //   fetchSessions()
+  // }, [])
 
   const fetchSessions = async () => {
+    if (!session?.access_token) return; 
+
+    setIsSidebarLoading(true);
     try {
         const res = await axios.get(`${API_URL}/sessions`, {
             headers: { 'Authorization': `Bearer ${session.access_token}` }
-        })
-        setSessions(res.data)
+        });
+
+        const sessionData = Array.isArray(res.data) ? res.data : [];
+        setSessions(sessionData);
         
-        // LOGIC OTOMATIS LOAD:
-        // Jika ada session di list, dan kita belum pilih session (currentSessionId null),
-        // Maka load session yang PALING ATAS (terbaru)
-        if (res.data.length > 0 && !currentSessionId) {
-            loadChatHistory(res.data[0].id)
+        if (sessionData.length > 0 && !currentSessionId) {
+            loadChatHistory(sessionData[0].id);
         }
+      
+        // setSessions(res.data)
+    
+        // if (res.data.length > 0 && !currentSessionId) {
+        //     loadChatHistory(res.data[0].id)
+        // }
+
     } catch (e) {
         console.error("Gagal load session", e)
+        if (e.response?.status === 401) {
+            supabase.auth.signOut();
+        }
+    } finally {
+        setIsSidebarLoading(false);
     }
   }
+
+  useEffect(() => {
+      if (session) {
+          fetchSessions();
+      }
+  }, [session]);
 
   
   // 2. Fungsi Load History Chat per Session
