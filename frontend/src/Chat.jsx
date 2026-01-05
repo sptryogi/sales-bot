@@ -483,7 +483,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                         <div className="prose dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-table:border-collapse">
                             <ReactMarkdown 
                                 remarkPlugins={[remarkGfm]}
-                                {msg.content.replace(/<br\s*\/?>/gi, '\n')}
                                 components={{
                                     table: ({node, ...props}) => <div className="overflow-x-auto my-4 rounded border border-gray-300 dark:border-gray-700"><table className="w-full text-left text-sm" {...props} /></div>,
                                     th: ({node, ...props}) => <th className="bg-gray-100 dark:bg-gray-800 px-4 py-2 font-semibold border-b border-gray-300 dark:border-gray-700" {...props} />,
@@ -491,7 +490,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                     strong: ({node, ...props}) => <strong className="font-bold text-gray-900 dark:text-white" {...props} />
                                 }}
                             >
-                                {msg.content}
+                                {msg.content.replace(/<br\s*\/?>/gi, '\n')}
                             </ReactMarkdown>
                         </div>
                     )}
