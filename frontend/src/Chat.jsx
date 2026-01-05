@@ -680,42 +680,41 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         </div>
 
       </div>
+      {showEvalModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+              <div className="bg-white dark:bg-gray-800 w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
+                  {/* Header Modal */}
+                  <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-indigo-600">
+                      <div className="flex items-center gap-2 text-white">
+                          <Award size={20} />
+                          <h3 className="font-bold">AI Sales Performance Coach</h3>
+                      </div>
+                      <button onClick={() => setShowEvalModal(false)} className="text-white/80 hover:text-white transition-colors">
+                          <X size={24} />
+                      </button>
+                  </div>
+      
+                  {/* Content Modal */}
+                  <div className="p-6 overflow-y-auto custom-scrollbar">
+                      <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {evaluation?.replace(/<br\s*\/?>/gi, '\n')}
+                          </ReactMarkdown>
+                      </div>
+                  </div>
+      
+                  {/* Footer Modal */}
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 text-right">
+                      <button 
+                          onClick={() => setShowEvalModal(false)}
+                          className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none"
+                      >
+                          Tutup Laporan
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
     </div>
-    
-    {showEvalModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-gray-800 w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
-                {/* Header Modal */}
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-indigo-600">
-                    <div className="flex items-center gap-2 text-white">
-                        <Award size={20} />
-                        <h3 className="font-bold">AI Sales Performance Coach</h3>
-                    </div>
-                    <button onClick={() => setShowEvalModal(false)} className="text-white/80 hover:text-white transition-colors">
-                        <X size={24} />
-                    </button>
-                </div>
-    
-                {/* Content Modal */}
-                <div className="p-6 overflow-y-auto custom-scrollbar">
-                    <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {evaluation?.replace(/<br\s*\/?>/gi, '\n')}
-                        </ReactMarkdown>
-                    </div>
-                </div>
-    
-                {/* Footer Modal */}
-                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 text-right">
-                    <button 
-                        onClick={() => setShowEvalModal(false)}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none"
-                    >
-                        Tutup Laporan
-                    </button>
-                </div>
-            </div>
-        </div>
-    )}
   )
 }
