@@ -490,7 +490,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                     strong: ({node, ...props}) => <strong className="font-bold text-gray-900 dark:text-white" {...props} />
                                 }}
                             >
-                                {msg.content.replace(/<br\s*\/?>/gi, '\n')}
+                                {msg.content}
                             </>
                         </div>
                     )}
