@@ -21,6 +21,9 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [showUploadMenu, setShowUploadMenu] = useState(false);
   const [webSearch, setWebSearch] = useState(false); // State untuk Web Search
   const [isSidebarLoading, setIsSidebarLoading] = useState(false);
+  
+  const [geoLocation, setGeoLocation] = useState(false);
+  const [locationInfo, setLocationInfo] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
@@ -111,6 +114,36 @@ export default function Chat({ session, darkMode, setDarkMode }) {
     await supabase.auth.signOut()
   }
 
+  const toggleGeoLocation = () => {
+    if (!geoLocation) {
+      const confirmGPS = window.confirm("Izinkan MediSales mengakses lokasi GPS Anda untuk memberikan rekomendasi yang lebih relevan?");
+      if (confirmGPS) {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            try {
+              // Menggunakan Nominatim (Free) untuk Reverse Geocoding
+              const res = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+              const address = res.data.address;
+              const city = address.city || address.town || address.village || address.state;
+              setLocationInfo(`${city}, ${address.country}`);
+              setGeoLocation(true);
+            } catch (err) {
+              alert("Gagal mendapatkan detail alamat.");
+            }
+          }, (error) => {
+            alert("Akses GPS ditolak atau error.");
+          });
+        } else {
+          alert("Browser Anda tidak mendukung Geolocation.");
+        }
+      }
+    } else {
+      setGeoLocation(false);
+      setLocationInfo(null);
+    }
+  };
+
 
   // 4. Handle Send (Logic Diperbaiki agar tidak hilang)
   const handleSend = async (e) => {
@@ -137,7 +170,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         message: userMessage,
         session_id: currentSessionId, // Kirim ID (null jika new chat)
         file_metadata: currentFile,
-        web_search: webSearch
+        web_search: webSearch,
+        location_data: locationInfo
       }, {
         headers: {
           'Authorization': `Bearer ${access_token}`,
@@ -553,6 +587,19 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                             >
                                 <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
                                 <span>Web Search</span>
+                            </button>
+
+                            <button 
+                                onClick={toggleGeoLocation}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
+                                    geoLocation 
+                                    ? 'bg-teal-600 text-white shadow-[0_0_15px_rgba(20,184,166,0.5)] ring-2 ring-teal-400' 
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'
+                                }`}
+                            >
+                                <div className={`w-2 h-2 rounded-full ${geoLocation ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
+                                <MapPin size={14} />
+                                <span>{geoLocation && locationInfo ? locationInfo : "Location"}</span>
                             </button>
                         </div>
     
