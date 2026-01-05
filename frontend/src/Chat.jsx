@@ -53,7 +53,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
   // --- LOGIC LOAD SESSIONS & HISTORY ---
   
-  1. Ambil daftar room saat pertama load
+  // 1. Ambil daftar room saat pertama load
   useEffect(() => {
     fetchSessions()
   }, [])
