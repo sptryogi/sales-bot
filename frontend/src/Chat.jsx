@@ -493,7 +493,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                 }}
                             >
                                 {msg.content}
-                                {(msg.content || '').replace(/<br\s*\/?>|<\/br>|<br\s*>\s*<\/br>/gi, '\n')}
                             </ReactMarkdown>
                         </div>
                     )}
