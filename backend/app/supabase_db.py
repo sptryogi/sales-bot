@@ -76,3 +76,14 @@ def delete_session(session_id, user_id):
 def rename_session(session_id, user_id, new_title):
     sb = get_supabase()
     sb.table("sessions").update({"title": new_title}).eq("id", session_id).eq("user_id", user_id).execute()
+
+def get_user_performance_history(user_id, limit=50):
+    sb = get_supabase()
+    res = sb.table("chat_history") \
+        .select("*") \
+        .eq("user_id", user_id) \
+        .order("created_at", desc=True) \
+        .limit(limit) \
+        .execute()
+    # Kita balik lagi urutannya agar kronologis (lama ke baru)
+    return sorted(res.data, key=lambda x: x['created_at'])
