@@ -153,29 +153,14 @@ def chat(payload: dict, user=Depends(get_current_user)):
         messages.append({"role": h["role"], "content": h["content"]})
     messages.append({"role": "user", "content": message})
 
-    # res = client.chat.completions.create(
-    #     model="deepseek-chat",
-    #     messages=messages
-    # )
-
-    # answer = res.choices[0].message.content
-    stream = client.chat.completions.create(
+    res = client.chat.completions.create(
         model="deepseek-chat",
         messages=messages,
-        stream=True
+        stream=False # Matikan stream di backend
     )
 
-    full_answer = ""
+    full_answer = res.choices[0].message.content
 
-    for chunk in stream:
-        delta = chunk.choices[0].delta
-        if delta and delta.content:
-            full_answer += delta.content
-
-    # save_chat(user.id, "user", message)
-    # save_chat(user.id, "assistant", answer)
-
-    # return {"answer": answer}
     save_chat(user.id, "user", message, session_id, file_metadata)
     save_chat(user.id, "assistant", full_answer, session_id)
 
