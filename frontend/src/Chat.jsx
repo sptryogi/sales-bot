@@ -4,7 +4,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './ThinkingDots.module.css'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin } from 'lucide-react'
+import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Database, Award } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -24,6 +24,10 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   
   const [geoLocation, setGeoLocation] = useState(false);
   const [locationInfo, setLocationInfo] = useState(null);
+
+  const [evaluation, setEvaluation] = useState(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [showEvalModal, setShowEvalModal] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
@@ -297,6 +301,21 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       setSessions(prev => prev.map(s => s.id === id ? { ...s, title: newTitle } : s));
   };
 
+  const handleEvaluate = async () => {
+      setIsEvaluating(true);
+      try {
+          const res = await axios.get(`${API_URL}/evaluate-sales`, {
+              headers: { 'Authorization': `Bearer ${session.access_token}` }
+          });
+          setEvaluation(res.data.evaluation);
+          setShowEvalModal(true); // Langsung buka modal saat hasil siap
+      } catch (err) {
+          alert("Gagal mengambil laporan evaluasi.");
+      } finally {
+          setIsEvaluating(false);
+      }
+  };
+
   // Helper Membersihkan Judul di Sidebar
   const cleanTitle = (title) => {
       if(!title) return "New Chat"
@@ -462,7 +481,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                         msg.content
                     ) : (
                         <div className="prose dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-table:border-collapse">
-                            <ReactMarkdown 
+                            < 
                                 remarkPlugins={[remarkGfm]}
                                 components={{
                                     table: ({node, ...props}) => <div className="overflow-x-auto my-4 rounded border border-gray-300 dark:border-gray-700"><table className="w-full text-left text-sm" {...props} /></div>,
@@ -471,8 +490,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                     strong: ({node, ...props}) => <strong className="font-bold text-gray-900 dark:text-white" {...props} />
                                 }}
                             >
-                                {msg.content}
-                            </ReactMarkdown>
+                                {msg.content.replace(/<br\s*\/?>/gi, '\n')}
+                            </>
                         </div>
                     )}
                 </div>
@@ -622,6 +641,16 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                                 <MapPin size={14} />
                                 <span>{geoLocation && locationInfo ? locationInfo : "Location"}</span>
                             </button>
+
+                            {/* TAMBAHKAN TOMBOL SALES REPORT INI */}
+                            <button 
+                                onClick={handleEvaluate}
+                                disabled={isEvaluating}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-all border border-indigo-100 dark:border-indigo-800"
+                            >
+                                {isEvaluating ? <Loader2 size={14} className="animate-spin" /> : <Award size={14} />}
+                                <span>{isEvaluating ? "Analyzing..." : "Sales Report"}</span>
+                            </button>
                         </div>
     
                         <button 
@@ -651,5 +680,41 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
       </div>
     </div>
+    {/* MODAL SALES REPORT */}
+    {showEvalModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white dark:bg-gray-800 w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700">
+                {/* Header Modal */}
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-indigo-600">
+                    <div className="flex items-center gap-2 text-white">
+                        <Award size={20} />
+                        <h3 className="font-bold">AI Sales Performance Coach</h3>
+                    </div>
+                    <button onClick={() => setShowEvalModal(false)} className="text-white/80 hover:text-white transition-colors">
+                        <X size={24} />
+                    </button>
+                </div>
+    
+                {/* Content Modal */}
+                <div className="p-6 overflow-y-auto custom-scrollbar">
+                    <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {evaluation?.replace(/<br\s*\/?>/gi, '\n')}
+                        </ReactMarkdown>
+                    </div>
+                </div>
+    
+                {/* Footer Modal */}
+                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 text-right">
+                    <button 
+                        onClick={() => setShowEvalModal(false)}
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 dark:shadow-none"
+                    >
+                        Tutup Laporan
+                    </button>
+                </div>
+            </div>
+        </div>
+    )}
   )
 }
