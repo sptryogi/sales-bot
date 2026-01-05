@@ -4,7 +4,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './ThinkingDots.module.css'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare } from 'lucide-react'
+import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -53,53 +53,30 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
   // --- LOGIC LOAD SESSIONS & HISTORY ---
   
-  // 1. Ambil daftar room saat pertama load
-  // useEffect(() => {
-  //   fetchSessions()
-  // }, [])
-
-  // const fetchSessions = async () => {
-  //   try {
-  //       const res = await axios.get(`${API_URL}/sessions`, {
-  //           headers: { 'Authorization': `Bearer ${session.access_token}` }
-  //       })
-  //       setSessions(res.data)
-        
-  //       // LOGIC OTOMATIS LOAD:
-  //       // Jika ada session di list, dan kita belum pilih session (currentSessionId null),
-  //       // Maka load session yang PALING ATAS (terbaru)
-  //       if (res.data.length > 0 && !currentSessionId) {
-  //           loadChatHistory(res.data[0].id)
-  //       }
-  //   } catch (e) {
-  //       console.error("Gagal load session", e)
-  //   }
-  // }
-
+  1. Ambil daftar room saat pertama load
   useEffect(() => {
-    const fetchSessions = async () => {
-      if (!session) return;
-      setIsSidebarLoading(true);
-      try {
-        const { data } = await axios.get(`${API_URL}/sessions`, {
-          headers: { 'Authorization': `Bearer ${session.access_token}` }
-        });
-        // Pastikan data adalah array agar tidak blank saat mapping
-        setSessions(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error("Gagal load session", e);
-        // Jika error 401 (Unauthorized) karena Supabase lama mati, paksa logout
-        if (e.response?.status === 401) {
-          supabase.auth.signOut();
-        }
-        setSessions([]); // Set ke array kosong jika gagal
-      } finally {
-        setIsSidebarLoading(false);
-      }
-    };
-    fetchSessions();
-  }, [session]);
+    fetchSessions()
+  }, [])
 
+  const fetchSessions = async () => {
+    try {
+        const res = await axios.get(`${API_URL}/sessions`, {
+            headers: { 'Authorization': `Bearer ${session.access_token}` }
+        })
+        setSessions(res.data)
+        
+        // LOGIC OTOMATIS LOAD:
+        // Jika ada session di list, dan kita belum pilih session (currentSessionId null),
+        // Maka load session yang PALING ATAS (terbaru)
+        if (res.data.length > 0 && !currentSessionId) {
+            loadChatHistory(res.data[0].id)
+        }
+    } catch (e) {
+        console.error("Gagal load session", e)
+    }
+  }
+
+  
   // 2. Fungsi Load History Chat per Session
   const loadChatHistory = async (sessionId) => {
     setCurrentSessionId(sessionId)
