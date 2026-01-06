@@ -4,7 +4,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './ThinkingDots.module.css'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award } from 'lucide-react'
+import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award, Sparkles } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -579,65 +579,68 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
                  <div className="flex justify-between items-center mt-2 gap-2">
                     <div className="flex items-center gap-1">
-                        {/* Tombol Upload File (Tetap Ada) */}
-                        <div className="relative">
-                            {showUploadMenu && (
-                                <div className="absolute bottom-12 left-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-50">
-                                    <button 
-                                        onClick={() => { fileInputRef.current.click(); setShowUploadMenu(false); }}
-                                        className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                                    >
-                                        <Plus size={14} /> Upload File
-                                    </button>
-                                </div>
-                            )}
-                            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.doc,.docx,image/*" />
-                            <button 
-                                onClick={() => { setShowUploadMenu(!showUploadMenu); setShowToolsMenu(false); }}
-                                className="p-2.5 rounded-xl text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
-                            >
-                                <Paperclip size={20} />
-                            </button>
-                        </div>
-                
-                        {/* --- TOMBOL ALAT (GROUPING) --- */}
-                        <div className="relative">
-                            {showToolsMenu && (
-                                <div className="absolute bottom-12 left-0 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fitur Tambahan</div>
-                                    
-                                    {/* Web Search */}
-                                    <button onClick={() => setWebSearch(!webSearch)} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${webSearch ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-                                            <span>Web Search</span>
-                                        </div>
-                                        {webSearch && <div className="text-[10px] bg-indigo-600 text-white px-1.5 rounded-full">ON</div>}
-                                    </button>
-                
-                                    {/* Geolocation */}
-                                    <button onClick={toggleGeoLocation} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${geoLocation ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
-                                        <div className="flex items-center gap-3">
-                                            <MapPin size={16} className={geoLocation ? 'text-teal-600' : ''} />
-                                            <span className="truncate max-w-[120px]">{geoLocation && locationInfo ? locationInfo : "Location"}</span>
-                                        </div>
-                                    </button>
-                
-                                    {/* Sales Report */}
-                                    <button onClick={handleEvaluate} disabled={isEvaluating} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                                        {isEvaluating ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />}
-                                        <span>Sales Report</span>
-                                    </button>
-                                </div>
-                            )}
-                            
-                            <button 
-                                onClick={() => { setShowToolsMenu(!showToolsMenu); setShowUploadMenu(false); }}
-                                className={`p-2.5 rounded-xl transition-all ${showToolsMenu ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                            >
-                                <Plus size={22} className={`transition-transform duration-300 ${showToolsMenu ? 'rotate-45' : ''}`} />
-                            </button>
-                        </div>
+                      {/* 1. TOMBOL UPLOAD (Sekarang Icon Plus) */}
+                      <div className="relative">
+                          {showUploadMenu && (
+                              <div className="absolute bottom-12 left-0 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl py-2 z-50">
+                                  <button 
+                                      onClick={() => { fileInputRef.current.click(); setShowUploadMenu(false); }}
+                                      className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                                  >
+                                      {/* Icon di dalam menu sekarang Paperclip */}
+                                      <Paperclip size={14} /> Upload File
+                                  </button>
+                              </div>
+                          )}
+                          <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.doc,.docx,image/*" />
+                          <button 
+                              onClick={() => { setShowUploadMenu(!showUploadMenu); setShowToolsMenu(false); }}
+                              className={`p-2.5 rounded-xl transition-all ${showUploadMenu ? 'bg-gray-200 dark:bg-gray-700 text-indigo-600' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                          >
+                              {/* Tombol luar sekarang Plus */}
+                              <Plus size={22} className={`transition-transform duration-300 ${showUploadMenu ? 'rotate-45' : ''}`} />
+                          </button>
+                      </div>
+                  
+                      {/* 2. TOMBOL ALAT (Sekarang Icon Sparkles + Teks 'Alat') */}
+                      <div className="relative">
+                          {showToolsMenu && (
+                              <div className="absolute bottom-12 left-0 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2">
+                                  <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fitur Tambahan</div>
+                                  
+                                  {/* Web Search */}
+                                  <button onClick={() => setWebSearch(!webSearch)} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${webSearch ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                                      <div className="flex items-center gap-3">
+                                          <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
+                                          <span>Web Search</span>
+                                      </div>
+                                  </button>
+                  
+                                  {/* Geolocation */}
+                                  <button onClick={toggleGeoLocation} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${geoLocation ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                                      <div className="flex items-center gap-3">
+                                          <MapPin size={16} />
+                                          <span className="truncate max-w-[120px]">{geoLocation && locationInfo ? locationInfo : "Location"}</span>
+                                      </div>
+                                  </button>
+                  
+                                  {/* Sales Report */}
+                                  <button onClick={handleEvaluate} disabled={isEvaluating} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                                      {isEvaluating ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />}
+                                      <span>Sales Report</span>
+                                  </button>
+                              </div>
+                          )}
+                          
+                          <button 
+                              onClick={() => { setShowToolsMenu(!showToolsMenu); setShowUploadMenu(false); }}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${showToolsMenu ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                          >
+                              {/* Icon Sparkles (Gemini-style) dan Teks Alat */}
+                              <Sparkles size={20} className={showToolsMenu ? 'animate-pulse' : ''} />
+                              <span className="text-sm font-medium">Alat</span>
+                          </button>
+                      </div>
                     </div>
                 
                     {/* --- TOMBOL KIRIM (DIPERBESAR & SEJAJAR) --- */}
