@@ -83,6 +83,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     file_metadata = payload.get("file_metadata") # Ambil metadata dari frontend
     web_search_enabled = payload.get("web_search", False) # Ambil flag web_search
     location_data = payload.get("location_data")
+    prof_level = payload.get("professionalism", "Pemula") # Default ke Pemula
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
     if not session_id:
@@ -90,6 +91,15 @@ def chat(payload: dict, user=Depends(get_current_user)):
         session_id = new_sess['id']
 
     history = load_chat(user.id, session_id)
+
+    # Logika instruksi berdasarkan level
+    prof_instructions = {
+        "Pemula": "Gunakan bahasa yang sangat sederhana, berikan penjelasan dasar tentang teknik sales, dan jangan terlalu teknis. Berikan motivasi ekstra.",
+        "Menengah": "Gunakan bahasa profesional yang lugas. Fokus pada teknik negosiasi taktis dan argumen yang efisien namun kuat.",
+        "Expert": "Gunakan bahasa level eksekutif dan teknis. Berikan data yang mendalam, argumen yang sangat persuasif, dan strategi tingkat lanjut untuk closing cepat."
+    }
+    
+    selected_inst = prof_instructions.get(prof_level, prof_instructions["Pemula"])
 
     context_web = ""
     if web_search_enabled:
@@ -122,7 +132,9 @@ def chat(payload: dict, user=Depends(get_current_user)):
     loc_context = f"\nLOKASI USER SAAT INI: {location_data}" if location_data else ""
 
     system_prompt = f"""
-    Kamu adalah 'MediSales Assistant', AI pendamping untuk tim sales obat.
+    Kamu adalah 'MediSales Assistant', AI pendamping untuk tim sales atau marketing.
+    LEVEL SALES USER: {prof_level}. 
+    INSTRUKSI KHUSUS: {selected_inst}
 
     Tugasmu adalah MEMBANTU SALES dengan:
     - Menyusun argumen penjualan berdasarkan konteks produk
@@ -133,7 +145,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     Aturan Penting:
     - Jawaban ditujukan untuk SALES, bukan langsung ke customer
     - Gunakan bahasa Indonesia yang profesional, jelas, dan praktis
-    - Jawaban ringkas, berbentuk poin atau tabel jika perlu
+    - Jawaban ringkas jangan terlalu panjang, berbentuk poin atau tabel jika perlu
     - Jangan mengarang informasi di luar konteks
     - Jika data tidak ada, katakan bahwa informasi belum tersedia
     - Boleh menyertakan contoh script / kalimat bantu untuk sales
