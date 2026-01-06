@@ -870,7 +870,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                       email: session?.user?.email,
                       message: feedbackMessage
                     });
-                    alert("Feedback terkirim ke dianrakyat5@gmail.com. Terima kasih!");
+                    alert("Feedback terkirim ke Kami. Terima kasih!");
                     setShowFeedbackModal(false);
                     setFeedbackMessage('');
                   } catch (err) { alert("Gagal mengirim feedback."); }
