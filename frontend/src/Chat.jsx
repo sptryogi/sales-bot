@@ -31,7 +31,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
 
   const [isLoading, setIsLoading] = useState(false)
   const [mode, setMode] = useState('rag') 
-  const [showSidebar, setShowSidebar] = useState(true)
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768)
   
   const messagesEndRef = useRef(null)
   const scrollAreaRef = useRef(null) // Ref untuk div yang bisa di-scroll
@@ -39,12 +39,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [showToolsMenu, setShowToolsMenu] = useState(false);
 
   // --- LOGIC SCROLL ---
-  // const scrollToBottom = () => {
-  //   // Timeout kecil memastikan DOM sudah render bubble baru sebelum scroll
-  //   setTimeout(() => {
-  //       messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
-  //   }, 100)
-  // }
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current;
@@ -333,23 +327,36 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       if(!title) return "New Chat"
       return title.replace(/[*#_]/g, '').trim()
   }
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Jika layar di bawah 768px (mobile), otomatis sembunyikan sidebar
+      if (window.innerWidth < 768) {
+        setShowSidebar(false)
+      } else {
+        setShowSidebar(true)
+      }
+    }
+    // Jalankan saat load
+    handleResize()
+  }, [])
   
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden transition-colors duration-300">
+    <div className="flex h-[100dvh] bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden transition-colors duration-300">
       
       {/* --- OVERLAY MOBILE (Klik luar untuk tutup) --- */}
       {showSidebar && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/10 z-30 md:hidden animate-in fade-in duration-300"
           onClick={() => setShowSidebar(false)}
         />
       )}
       
       {/* --- SIDEBAR --- */}
       <div 
-        className={`${showSidebar ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 overflow-hidden'} 
-        bg-gray-50 dark:bg-black flex flex-col transition-all duration-300 ease-in-out border-r border-gray-200 dark:border-gray-800 absolute md:relative z-40 h-full`}
+        className={`${showSidebar ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0'} 
+        bg-gray-50 dark:bg-black flex flex-col transition-all duration-300 ease-in-out border-r border-gray-200 dark:border-gray-800 absolute md:relative z-50 h-full`}
       >
         <div className="p-3 flex items-center justify-between">
             <button 
@@ -403,7 +410,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           ))}
         </div>
         
-        <div className="border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-black">
+        <div className="mt-auto border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-black">
           <button 
              onClick={() => setDarkMode(!darkMode)}
              className="flex items-center gap-2 w-full px-2 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md mb-1"
