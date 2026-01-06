@@ -35,17 +35,14 @@ def get_user_sessions(user_id):
     res = sb.table("sessions").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
     return res.data
     
-# --- UPDATE FUNGSI LAMA ---
-# def save_chat(user_id, role, content, session_id, file_metadata=None): 
-#     sb = get_supabase()
-#     data = {
-#         "user_id": user_id,
-#         "role": role,
-#         "content": content,
-#         "session_id": session_id,
-#         "file_metadata": file_metadata # Simpan metadata file jika ada
-#     }
-#     sb.table("chat_history").insert(data).execute()
+def save_feedback(user_id, name, email, message):
+    data = {
+        "user_id": user_id,
+        "name": name,
+        "email": email,
+        "message": message
+    }
+    return supabase.table("feedbacks").insert(data).execute()
 
 def save_chat(user_id, role, content, session_id=None, file_metadata=None):
     sb = get_supabase()
