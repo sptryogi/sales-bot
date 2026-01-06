@@ -11,7 +11,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => {
     // Cek apakah ada setting tersimpan? Jika tidak, default true (Dark)
     const savedTheme = localStorage.getItem('mediSalesTheme')
-    return savedTheme ? savedTheme === 'dark' : true
+    return savedTheme ? savedTheme === 'dark' : false
   })
 
   useEffect(() => {
