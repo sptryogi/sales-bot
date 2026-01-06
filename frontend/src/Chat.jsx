@@ -4,7 +4,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './ThinkingDots.module.css'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award, Sparkles } from 'lucide-react'
+import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award, Sparkles, Settings, ShieldCheck, MessageSquarePlus } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -21,6 +21,12 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   const [showUploadMenu, setShowUploadMenu] = useState(false);
   const [webSearch, setWebSearch] = useState(false); // State untuk Web Search
   const [isSidebarLoading, setIsSidebarLoading] = useState(false);
+
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [profLevel, setProfLevel] = useState('Pemula'); // Default: Pemula
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   
   const [geoLocation, setGeoLocation] = useState(false);
   const [locationInfo, setLocationInfo] = useState(null);
@@ -191,6 +197,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         message: userMessage,
         session_id: currentSessionId, // Kirim ID (null jika new chat)
         file_metadata: currentFile,
+        professionalism: profLevel,
         web_search: webSearch,
         location_data: locationInfo
       }, {
@@ -411,13 +418,58 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         </div>
         
         <div className="mt-auto border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-black">
-          <button 
-             onClick={() => setDarkMode(!darkMode)}
-             className="flex items-center gap-2 w-full px-2 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md mb-1"
-          >
-             {darkMode ? <Sun size={16}/> : <Moon size={16}/>} 
-             {darkMode ? "Light Mode" : "Dark Mode"}
-          </button>
+          {/* Tombol Setting & Feedback */}
+          <div className="relative px-2 mb-2">
+            <button
+              onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-gray-800 transition-all border border-transparent hover:border-gray-700"
+            >
+              <Settings size={20} />
+              <span className="text-sm font-medium">Setting & Feedback</span>
+            </button>
+          
+            {/* Dropdown Menu Setting */}
+            {showSettingsMenu && (
+              <div className="absolute bottom-full left-0 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 mb-2 z-[60] animate-in fade-in slide-in-from-bottom-4">
+                <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 mb-1">Pengaturan</div>
+                
+                {/* 1. Toggle Dark Mode */}
+                <button onClick={() => setDarkMode(!darkMode)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm dark:text-gray-300">
+                  <div className="flex items-center gap-3">
+                    {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+                    <span>Mode {darkMode ? 'Terang' : 'Gelap'}</span>
+                  </div>
+                </button>
+          
+                {/* 2. Set Profesionalitas */}
+                <div className="mt-1 p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
+                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 mb-2 px-1">
+                    <ShieldCheck size={14} /> <span>LEVEL SALES: {profLevel}</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {['Pemula', 'Menengah', 'Expert'].map((lvl) => (
+                      <button 
+                        key={lvl}
+                        onClick={() => setProfLevel(lvl)}
+                        className={`flex-1 text-[10px] py-1.5 rounded-lg border transition-all font-medium ${profLevel === lvl ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500'}`}
+                      >
+                        {lvl}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+          
+                {/* 3. Feedback */}
+                <button 
+                  onClick={() => { setShowFeedbackModal(true); setShowSettingsMenu(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300 transition-all"
+                >
+                  <MessageSquarePlus size={18} />
+                  <span>Kritik & Saran</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-3 px-2 mt-2 mb-2 pt-2 border-t border-gray-200 dark:border-gray-800">
              <div className="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
@@ -767,6 +819,62 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                   </div>
               </div>
           </div>
+      )};
+
+      {/* MODAL FEEDBACK */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold dark:text-white flex items-center gap-2">
+                  <MessageSquarePlus className="text-indigo-600" /> Feedback
+                </h2>
+                <button onClick={() => setShowFeedbackModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-white"><X size={24} /></button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nama & Email</label>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm dark:text-gray-300 border border-gray-100 dark:border-gray-700">
+                    <p className="font-bold">{session?.user?.user_metadata?.full_name || 'User'}</p>
+                    <p className="opacity-60 text-xs">{session?.user?.email}</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kritik & Saran</label>
+                  <textarea 
+                    className="w-full p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 border-none text-sm dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    rows="4"
+                    placeholder="Apa yang bisa kami tingkatkan?"
+                    value={feedbackMessage}
+                    onChange={(e) => setFeedbackMessage(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button 
+                disabled={isSendingFeedback || !feedbackMessage.trim()}
+                onClick={async () => {
+                  setIsSendingFeedback(true);
+                  try {
+                    await axios.post(`${API_URL}/feedback`, {
+                      name: session?.user?.user_metadata?.full_name || 'User',
+                      email: session?.user?.email,
+                      message: feedbackMessage
+                    });
+                    alert("Feedback terkirim ke dianrakyat5@gmail.com. Terima kasih!");
+                    setShowFeedbackModal(false);
+                    setFeedbackMessage('');
+                  } catch (err) { alert("Gagal mengirim feedback."); }
+                  finally { setIsSendingFeedback(false); }
+                }}
+                className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+              >
+                {isSendingFeedback ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                Kirim Feedback
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
