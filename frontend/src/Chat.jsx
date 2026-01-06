@@ -424,14 +424,23 @@ export default function Chat({ session, darkMode, setDarkMode }) {
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
               className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all group"
             >
-              <Settings size={20} />
+              <Settings size={20} className="group-hover:rotate-45 transition-transform duration-500"/>
               <span className="text-sm font-medium">Setting & Feedback</span>
             </button>
           
             {/* Dropdown Menu Setting */}
             {showSettingsMenu && (
               <div className="absolute bottom-full left-0 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 mb-2 z-[60] animate-in fade-in slide-in-from-bottom-4">
-                <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 mb-1">Pengaturan</div>
+                {/* Header Panel dengan Tombol X */}
+                <div className="flex justify-between items-center px-3 py-2 border-b border-gray-100 dark:border-gray-800 mb-1">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pengaturan</span>
+                  <button 
+                    onClick={() => setShowSettingsMenu(false)}
+                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
                 
                 {/* 1. Toggle Dark Mode */}
                 <button onClick={() => setDarkMode(!darkMode)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm dark:text-gray-300">
