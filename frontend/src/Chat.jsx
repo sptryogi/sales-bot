@@ -338,10 +338,18 @@ export default function Chat({ session, darkMode, setDarkMode }) {
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans overflow-hidden transition-colors duration-300">
       
+      {/* --- OVERLAY MOBILE (Klik luar untuk tutup) --- */}
+      {showSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-300"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+      
       {/* --- SIDEBAR --- */}
       <div 
         className={`${showSidebar ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 overflow-hidden'} 
-        bg-gray-50 dark:bg-black flex flex-col transition-all duration-300 ease-in-out border-r border-gray-200 dark:border-gray-800 absolute md:relative z-20 h-full`}
+        bg-gray-50 dark:bg-black flex flex-col transition-all duration-300 ease-in-out border-r border-gray-200 dark:border-gray-800 absolute md:relative z-40 h-full`}
       >
         <div className="p-3 flex items-center justify-between">
             <button 
@@ -428,7 +436,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         <div className="absolute top-0 left-0 p-4 z-10 flex gap-2">
             <button 
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 active:scale-95 transition-all text-gray-500 dark:text-gray-400"
               title={showSidebar ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
             >
               {showSidebar ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
