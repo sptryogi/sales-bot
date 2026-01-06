@@ -355,7 +355,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       
       {/* --- SIDEBAR --- */}
       <div 
-        className={`${showSidebar ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0'} 
+        className={`${showSidebar ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 overflow-hidden'} 
         bg-gray-50 dark:bg-black flex flex-col transition-all duration-300 ease-in-out border-r border-gray-200 dark:border-gray-800 absolute md:relative z-50 h-full`}
       >
         <div className="p-3 flex items-center justify-between">
