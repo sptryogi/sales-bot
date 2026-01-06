@@ -217,3 +217,55 @@ def evaluate_sales(user=Depends(get_current_user)):
     )
     
     return {"evaluation": res.choices[0].message.content}
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# Gunakan payload: dict agar konsisten dengan endpoint /chat Anda
+@router.post("/feedback")
+async def send_feedback(payload: dict, user=Depends(get_current_user)):
+    name = payload.get("name")
+    email = payload.get("email")
+    message = payload.get("message")
+    user_id = user.id
+
+    try:
+        # 1. SIMPAN KE SUPABASE
+        from .supabase_db import save_feedback
+        save_feedback(user_id, name, email, message)
+
+        # 2. KIRIM KE EMAIL (SMTP)
+        # Ambil kredensial dari environment variable (.env)
+        SENDER_EMAIL = os.getenv("EMAIL_USER") # Email pengirim (bisa email Anda)
+        SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD") # App Password dari Google
+        RECEIVER_EMAIL = "dianrakyat5@gmail.com"
+
+        # Setup Pesan
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = RECEIVER_EMAIL
+        msg['Subject'] = f"Feedback MedisalesAI: {name}"
+
+        body = f"""
+        Halo Admin,
+        Ada feedback baru yang masuk:
+
+        Nama: {name}
+        Email User: {email}
+        Isi Kritik/Saran:
+        {message}
+        """
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Proses Pengiriman
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+
+        return {"status": "success", "message": "Feedback saved and email sent"}
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Terjadi kesalahan saat memproses feedback")
