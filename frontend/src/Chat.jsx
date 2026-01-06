@@ -481,7 +481,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           </div>
 
           <div className="flex items-center gap-3 px-2 mt-2 mb-2 pt-2 border-t border-gray-200 dark:border-gray-800">
-             <div className="px-4 py-2 flex items-center gap-3">
+             <div className="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
                 {session.user.email[0].toUpperCase()}
              </div>
              <div className="text-sm font-medium truncate max-w-[120px]">
