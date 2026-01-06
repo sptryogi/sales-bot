@@ -252,7 +252,19 @@ export default function Chat({ session, darkMode, setDarkMode }) {
       const file = e.target.files[0];
       if (!file) return;
   
+      // 1. SET INSTAN (Langsung tampil di UI sebelum upload selesai)
+      setAttachedFile({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          // Preview lokal sementara untuk gambar
+          preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+          url: null // Belum ada URL asli karena belum selesai upload
+      });
+      
       setIsUploading(true);
+      setShowUploadMenu(false);
+  
       try {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -268,18 +280,15 @@ export default function Chat({ session, darkMode, setDarkMode }) {
               .from('chat-attachments')
               .getPublicUrl(filePath);
   
-          // INI PENTING: Pastikan semua property ini ada
-          setAttachedFile({
-              name: file.name,
-              url: publicUrl,
-              type: file.type,
-              size: file.size,
-              preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
-          });
+          // 2. UPDATE state dengan URL asli dari Supabase setelah sukses
+          setAttachedFile(prev => ({
+              ...prev,
+              url: publicUrl
+          }));
           
-          setShowUploadMenu(false); // Tutup menu setelah pilih file
       } catch (err) {
           alert("Gagal upload file ke storage");
+          setAttachedFile(null); // Hapus preview jika gagal
       } finally {
           setIsUploading(false);
       }
@@ -547,26 +556,35 @@ export default function Chat({ session, darkMode, setDarkMode }) {
            <div className="max-w-3xl mx-auto">
               {/* --- PINDAHKAN PREVIEW KE SINI (DI DALAM MAX-W-3XL) --- */}
               {attachedFile && (
-                <div className={`flex items-center gap-3 p-2 rounded-xl mb-3 w-fit border relative animate-in fade-in slide-in-from-bottom-2 shadow-sm transition-all duration-500 ${
+                <div className={`flex items-center gap-3 p-2 rounded-xl mb-3 w-fit border relative animate-in fade-in slide-in-from-bottom-2 shadow-sm transition-all duration-300 ${
                   isUploading 
-                  ? 'bg-gray-300 dark:bg-gray-600 opacity-60 grayscale animate-pulse border-gray-400' 
+                  ? 'bg-gray-200 dark:bg-gray-700 opacity-60 grayscale border-gray-300 dark:border-gray-600' 
                   : 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800'
                 }`}>
-                  <div className={`p-2 rounded-lg ${isUploading ? 'bg-gray-400' : 'bg-indigo-600 text-white'}`}>
+                  
+                  {/* Icon atau Preview Gambar */}
+                  <div className={`p-2 rounded-lg transition-colors ${isUploading ? 'bg-gray-400' : 'bg-indigo-600 text-white'}`}>
                     {attachedFile.type?.includes('image') ? <ImageIcon size={20} /> : <FileIcon size={20} />}
                   </div>
+              
                   <div className="flex flex-col pr-6">
                     <span className="text-xs font-semibold truncate max-w-[150px] dark:text-white">
                       {attachedFile.name}
                     </span>
                     <span className="text-[10px] text-gray-500 dark:text-gray-400 italic">
-                      {isUploading ? "Sedang mengupload..." : "File siap dikirim"}
+                      {isUploading ? (
+                        <span className="flex items-center gap-1">
+                          <Loader2 size={10} className="animate-spin" /> Sedang mengupload...
+                        </span>
+                      ) : "File siap dikirim"}
                     </span>
                   </div>
+              
+                  {/* Tombol Hapus: Sembunyikan jika sedang upload untuk mencegah error data */}
                   {!isUploading && (
                     <button 
                       onClick={() => setAttachedFile(null)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md border-2 border-white dark:border-gray-800"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-md border-2 border-white dark:border-gray-800"
                     >
                       <X size={12} />
                     </button>
