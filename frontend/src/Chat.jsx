@@ -417,12 +417,12 @@ export default function Chat({ session, darkMode, setDarkMode }) {
           ))}
         </div>
         
-        <div className="mt-auto border-t border-gray-200 dark:border-gray-800 p-3 bg-gray-50 dark:bg-black">
+        <div className="border-t border-gray-200 dark:border-gray-800 w-full my-2">
           {/* Tombol Setting & Feedback */}
           <div className="relative px-2 mb-2">
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-400 hover:bg-gray-800 transition-all border border-transparent hover:border-gray-700"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all group"
             >
               <Settings size={20} />
               <span className="text-sm font-medium">Setting & Feedback</span>
@@ -471,7 +471,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
             )}
           </div>
 
-          <div className="flex items-center gap-3 px-2 mt-2 mb-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+          <div className="border-t border-gray-200 dark:border-gray-800 w-full my-2">
              <div className="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
                 {session.user.email[0].toUpperCase()}
              </div>
