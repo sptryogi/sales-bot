@@ -552,8 +552,8 @@ export default function Chat({ session, darkMode, setDarkMode }) {
         </div>
 
         {/* --- INPUT AREA --- */}
-        <div className="absolute bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 pb-6 transition-colors duration-300">
-           <div className="max-w-3xl mx-auto">
+        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-white via-white/95 to-transparent dark:from-gray-800 dark:via-gray-800/95 dark:to-transparent pt-10 p-4 pb-6 z-10 pointer-events-none">
+           <div className="max-w-3xl mx-auto pointer-events-auto">
               {/* --- PINDAHKAN PREVIEW KE SINI (DI DALAM MAX-W-3XL) --- */}
               {attachedFile && (
                 <div className={`flex items-center gap-3 p-2 rounded-xl mb-3 w-fit border relative animate-in fade-in slide-in-from-bottom-2 shadow-sm transition-all duration-300 ${
