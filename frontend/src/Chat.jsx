@@ -723,13 +723,6 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                               {/* Tombol luar sekarang Plus */}
                               <Plus size={22} className={`transition-transform duration-300 ${showUploadMenu ? 'rotate-45' : ''}`} />
                           </button>
-                          <button 
-                              onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
-                              className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                          >
-                              {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
-                              <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
-                          </button>
                       </div>
                       
                   
@@ -738,6 +731,14 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                           {showToolsMenu && (
                               <div className="absolute bottom-12 left-0 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2">
                                   <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fitur Tambahan</div>
+
+                                  <button 
+                                      onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
+                                      className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                  >
+                                      {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
+                                      <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
+                                  </button>
                                   
                                   {/* Web Search */}
                                   <button onClick={() => setWebSearch(!webSearch)} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${webSearch ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
