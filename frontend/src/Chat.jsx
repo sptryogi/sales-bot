@@ -723,7 +723,16 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                               {/* Tombol luar sekarang Plus */}
                               <Plus size={22} className={`transition-transform duration-300 ${showUploadMenu ? 'rotate-45' : ''}`} />
                           </button>
+                          <div className="h-4 w-[1px] bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                          <button 
+                              onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
+                              className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                          >
+                              {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
+                              <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
+                          </button>
                       </div>
+                      
                   
                       {/* 2. TOMBOL ALAT (Sekarang Icon Sparkles + Teks 'Alat') */}
                       <div className="relative">
