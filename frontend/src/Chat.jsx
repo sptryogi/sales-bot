@@ -729,39 +729,50 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                       {/* 2. TOMBOL ALAT (Sekarang Icon Sparkles + Teks 'Alat') */}
                       <div className="relative">
                           {showToolsMenu && (
-                              <div className="absolute bottom-12 left-0 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2">
-                                  <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fitur Tambahan</div>
-
-                                  <button 
-                                      onClick={() => setMode(mode === 'rag' ? 'json' : 'rag')}
-                                      className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                                  >
-                                      {mode === 'rag' ? <Database size={14}/> : <FileText size={14}/>}
-                                      <span>{mode === 'rag' ? 'RAG Mode' : 'Full Context'}</span>
-                                  </button>
-                                  
-                                  {/* Web Search */}
-                                  <button onClick={() => setWebSearch(!webSearch)} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${webSearch ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
-                                      <div className="flex items-center gap-3">
-                                          <div className={`w-2 h-2 rounded-full ${webSearch ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-                                          <span>Web Search</span>
-                                      </div>
-                                  </button>
-                  
-                                  {/* Geolocation */}
-                                  <button onClick={toggleGeoLocation} className={`flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm transition-all ${geoLocation ? 'bg-teal-50 dark:bg-teal-900/40 text-teal-600' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
-                                      <div className="flex items-center gap-3">
-                                          <MapPin size={16} />
-                                          <span className="truncate max-w-[120px]">{geoLocation && locationInfo ? locationInfo : "Location"}</span>
-                                      </div>
-                                  </button>
-                  
-                                  {/* Sales Report */}
-                                  <button onClick={handleEvaluate} disabled={isEvaluating} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                                      {isEvaluating ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />}
-                                      <span>Sales Report</span>
-                                  </button>
+                            <div className="absolute bottom-14 left-0 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-bottom-4">
+                              <div className="px-1 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alat Penjualan</div>
+                              
+                              <div className="grid grid-cols-2 gap-2">
+                                {/* 1. RAG/Full Context Mode */}
+                                <button 
+                                  onClick={() => setMode(mode === 'rag' ? 'full' : 'rag')}
+                                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${mode === 'rag' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
+                                >
+                                  {mode === 'rag' ? <Database size={20}/> : <FileText size={20}/>}
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Mode {mode === 'rag' ? 'RAG' : 'Full'}</span>
+                                </button>
+                          
+                                {/* 2. Web Search */}
+                                <button 
+                                  onClick={() => setWebSearch(!webSearch)}
+                                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${webSearch ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
+                                >
+                                  <Sparkles size={20} className={webSearch ? 'animate-pulse' : ''} />
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Web Search</span>
+                                </button>
+                          
+                                {/* 3. Geolocation */}
+                                <button 
+                                  onClick={toggleGeoLocation}
+                                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${geoLocation ? 'bg-teal-50 border-teal-200 text-teal-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
+                                >
+                                  <MapPin size={20}/>
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter truncate w-full px-1">
+                                    {geoLocation ? "Active" : "Location"}
+                                  </span>
+                                </button>
+                          
+                                {/* 4. Sales Report */}
+                                <button 
+                                  onClick={handleEvaluate}
+                                  disabled={isEvaluating}
+                                  className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border border-transparent bg-gray-50 text-gray-500 hover:bg-indigo-600 hover:text-white transition-all dark:bg-gray-800 dark:text-gray-400 disabled:opacity-50"
+                                >
+                                  {isEvaluating ? <Loader2 size={20} className="animate-spin" /> : <Award size={20} />}
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Evaluation</span>
+                                </button>
                               </div>
+                            </div>
                           )}
                           
                           <button 
