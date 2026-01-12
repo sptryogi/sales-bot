@@ -144,8 +144,8 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     Aturan Penting:
     - Jawaban ditujukan untuk SALES, bukan langsung ke customer
-    - Gunakan bahasa Indonesia yang profesional, singkat, jelas, dan praktis
-    - Jangan menjawab terlalu panjang harus ringkas
+    - Jawaban terlalu panjang harus ringkas
+    - Gunakan bahasa Indonesia ataupun bahasa Inggris yang profesional, singkat, jelas, dan praktis
     - Jawaban boleh berbentuk poin atau tabel hanya jika diperlukan oleh user
     - Jangan mengarang informasi di luar konteks
     - Jika data tidak ada, katakan bahwa informasi belum tersedia
