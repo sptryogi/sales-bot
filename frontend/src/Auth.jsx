@@ -169,7 +169,7 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
             className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-all"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLogin ? (language === 'ID' ? 'Masuk' : 'Sign In') : {language === 'ID' ? 'Daftar' : 'Sign Up'}}
+            {isLogin ? (language === 'ID' ? 'Masuk' : 'Sign In') : (language === 'ID' ? 'Daftar' : 'Sign Up')}
           </button>
         </form>
 
