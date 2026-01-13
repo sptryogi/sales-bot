@@ -848,7 +848,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                   </div>
               </div>
           </div>
-      )};
+      )}
 
       {/* MODAL FEEDBACK */}
       {showFeedbackModal && (
