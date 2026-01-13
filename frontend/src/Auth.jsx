@@ -11,28 +11,6 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
 
-  // const handleAuth = async (e) => {
-  //   e.preventDefault()
-  //   setLoading(true)
-  //   setErrorMessage('')
-    
-  //   let error;
-  //   if (isLogin) {
-  //     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-  //     error = signInError
-  //   } else {
-  //     const { error: signUpError } = await supabase.auth.signUp({ email, password })
-  //     error = signUpError
-  //   }
-
-  //   if (error) {
-  //     setErrorMessage(error.message === "Invalid login credentials" ? "Email atau password salah." : error.message)
-  //   } else if (!isLogin) {
-  //     alert('Registrasi berhasil! Silakan login.')
-  //     setIsLogin(true)
-  //   }
-  //   setLoading(false)
-  // }
   const handleAuth = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -71,7 +49,7 @@ export default function Auth({ darkMode, setDarkMode }) {
       }
     } else if (!isLogin) {
       // Ubah pesan sukses registrasi
-      alert('Registrasi berhasil! Link konfirmasi telah dikirim ke email Anda. Silakan klik link tersebut sebelum mencoba login.')
+      alert('Registrasi berhasil! Link konfirmasi telah dikirim ke email Anda (cek email Spam bila tidak ditemukan). Silakan klik link tersebut sebelum mencoba login.')
       setIsLogin(true)
       setEmail('')
       setPassword('')
