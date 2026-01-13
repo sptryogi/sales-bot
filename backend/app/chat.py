@@ -81,6 +81,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     message = payload.get("message")
     session_id = payload.get("session_id") # <--- Wajib ada session_id
     file_metadata = payload.get("file_metadata") # Ambil metadata dari frontend
+    lang = payload.get("language", "ID") # Ambil bahasa, default ID
     web_search_enabled = payload.get("web_search", False) # Ambil flag web_search
     location_data = payload.get("location_data")
     prof_level = payload.get("professionalism", "Pemula") # Default ke Pemula
@@ -131,6 +132,8 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     loc_context = f"\nLOKASI USER SAAT INI: {location_data}" if location_data else ""
 
+    lang_instruction = "Bahasa Indonesia" if lang == "ID" else "English Language"
+    
     system_prompt = f"""
     Kamu adalah 'MediSales Assistant', AI pendamping untuk tim sales atau marketing.
     LEVEL SALES USER: {prof_level}. 
@@ -145,7 +148,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     Aturan Penting:
     - Jawaban ditujukan untuk SALES, bukan langsung ke customer
     - Jawablah dengan singkat, padat, dan to-the-point.
-    - Gunakan bahasa Indonesia ataupun bahasa Inggris yang profesional, singkat, jelas, dan praktis
+    - Gunakan {lang_instruction} yang profesional, singkat, jelas, dan praktis
     - Jawaban boleh berbentuk poin atau tabel hanya jika diperlukan oleh user
     - Jangan mengarang informasi di luar konteks
     - Jika data tidak ada, katakan bahwa informasi belum tersedia
