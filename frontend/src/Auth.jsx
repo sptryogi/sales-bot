@@ -70,6 +70,12 @@ export default function Auth({ darkMode, setDarkMode }) {
       >
         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
       </button>
+      <button
+        onClick={() => setLanguage(language === 'ID' ? 'EN' : 'ID')}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-bold transition-all"
+      >
+        🌐 {language === 'ID' ? "Bahasa 'ID'" : "Language 'EN'"}
+      </button>
 
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
