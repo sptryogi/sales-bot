@@ -11,6 +11,18 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
 
+  // Tambahkan di dalam fungsi Auth, di bawah state lainnya
+  const [isReturningUser] = useState(() => {
+    return localStorage.getItem('hasVisitedBefore') === 'true';
+  });
+  
+  // Tambahkan useEffect untuk menandai user sudah pernah berkunjung setelah login pertama kali
+  useEffect(() => {
+    if (isLogin) { // Kita set true jika dia berada di mode login
+      localStorage.setItem('hasVisitedBefore', 'true');
+    }
+  }, [isLogin]);
+
   const handleAuth = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -71,7 +83,7 @@ export default function Auth({ darkMode, setDarkMode }) {
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? (isReturningUser ? "Welcome Back" : "Welcome") : 'Create Account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             MediSales AI Assistant
