@@ -8,7 +8,7 @@ import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Pap
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-export default function Chat({ session, darkMode, setDarkMode }) {
+export default function Chat({ session, darkMode, setDarkMode, language, setLanguage }) {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([]) 
   const [sessions, setSessions] = useState([]) // Daftar Room
