@@ -56,15 +56,15 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
     if (error) {
       // Tambahkan pengecekan khusus untuk email yang belum dikonfirmasi
       if (error.message === "Invalid login credentials") {
-          setErrorMessage("Email atau password salah.")
+          setErrorMessage(language === 'ID' ? "Email atau password salah." : "Email or password is incorrect.")
       } else if (error.message.includes("Email not confirmed")) {
-          setErrorMessage("Email Anda belum dikonfirmasi. Silakan cek kotak masuk email Anda.")
+          setErrorMessage(language === 'ID' ? "Email Anda belum dikonfirmasi. Silakan cek kotak masuk email Anda." : "Your email has not been confirmed. Please check your email inbox.")
       } else {
           setErrorMessage(error.message)
       }
     } else if (!isLogin) {
       // Ubah pesan sukses registrasi
-      alert('Registrasi berhasil! Link konfirmasi telah dikirim ke email Anda (cek email Spam bila tidak ditemukan). Silakan klik link tersebut sebelum mencoba login.')
+      alert(language === 'ID' ? "Registrasi berhasil! Link konfirmasi telah dikirim ke email Anda (cek email Spam bila tidak ditemukan). Silakan klik link tersebut sebelum mencoba login." : "Registration successful! A confirmation link has been sent to your email (check your Spam folder if you can't find it). Please click the link before attempting to log in.")
       setIsLogin(true)
       setEmail('')
       setPassword('')
