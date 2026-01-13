@@ -186,11 +186,11 @@ def chat(payload: dict, user=Depends(get_current_user)):
                 full_answer += text
                 yield text
     
-        save_chat(user.id, session_id, "user", message, file_metadata)
-        save_chat(user.id, session_id, "assistant", full_answer)
+        save_chat(user.id, "user", message, session_id, file_metadata)
+        save_chat(user.id, "assistant", full_answer, session_id)
 
         current_history = load_chat(user.id, session_id)
-        if len(history) == 2:
+        if len(current_history) == 2:
             clean_title = full_answer[:50].replace("*", "").replace("#", "").strip()
             update_session_title(session_id, clean_title)
 
