@@ -8,6 +8,17 @@ function App() {
   const [loading, setLoading] = useState(true)
   // Default Dark Mode
   // --- PERBAIKAN: BACA DARI LOCAL STORAGE ---
+
+  const [language, setLanguage] = useState(() => {
+    const savedLang = localStorage.getItem('mediSalesLang');
+    return savedLang || 'ID'; // Default Indonesia
+  });
+  
+  // Tambahkan efek untuk simpan ke localStorage
+  useEffect(() => {
+    localStorage.setItem('mediSalesLang', language);
+  }, [language]);
+  
   const [darkMode, setDarkMode] = useState(() => {
     // Cek apakah ada setting tersimpan? Jika tidak, default true (Dark)
     const savedTheme = localStorage.getItem('mediSalesTheme')
@@ -59,9 +70,15 @@ function App() {
   return (
     <>
       {!session ? (
-        <Auth darkMode={darkMode} setDarkMode={setDarkMode} /> 
+        <Auth darkMode={darkMode} setDarkMode={setDarkMode} />
       ) : (
-        <Chat session={session} darkMode={darkMode} setDarkMode={setDarkMode} />
+        <Chat 
+          session={session} 
+          darkMode={darkMode} 
+          setDarkMode={setDarkMode} 
+          language={language} 
+          setLanguage={setLanguage} 
+        />
       )}
     </>
   )
