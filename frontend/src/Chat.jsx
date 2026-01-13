@@ -118,7 +118,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
         // Database: { content: "...", role: "user" } -> Frontend butuh sama
         setMessages(res.data) 
     } catch (e) { 
-        console.error("Gagal load history", e)
+        console.error(language === 'ID' ? "Gagal load history" : "Failed to load history", e)
         setMessages([]) 
     } finally {
         setIsLoading(false)
@@ -143,7 +143,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
 
   const toggleGeoLocation = () => {
     if (!geoLocation) {
-      const confirmGPS = window.confirm("Izinkan MediSales mengakses lokasi GPS Anda untuk memberikan rekomendasi yang lebih relevan?");
+      const confirmGPS = window.confirm(language === 'ID' ? "Izinkan MediSales mengakses lokasi GPS Anda untuk memberikan rekomendasi yang lebih relevan?" : "Allow MediSales to access your GPS location to provide more relevant recommendations?");
       if (confirmGPS) {
         if ("geolocation" in navigator) {
           navigator.geolocation.getCurrentPosition(async (position) => {
@@ -156,13 +156,13 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               setLocationInfo(`${city}, ${address.country}`);
               setGeoLocation(true);
             } catch (err) {
-              alert("Gagal mendapatkan detail alamat.");
+              alert(language === 'ID' ? "Gagal mendapatkan detail alamat." : "Failed to get address details.", e);
             }
           }, (error) => {
-            alert("Akses GPS ditolak atau error.");
+            alert(language === 'ID' ? "Akses GPS ditolak atau error." : "GPS access denied or error.");
           });
         } else {
-          alert("Browser Anda tidak mendukung Geolocation.");
+          alert(language === 'ID' ? "Browser Anda tidak mendukung Geolocation." : "Your browser does not support Geolocation.");
         }
       }
     } else {
@@ -248,7 +248,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
 
     } catch (error) {
         console.error("Error Streaming:", error);
-        setMessages(prev => [...prev, { role: 'assistant', content: "Maaf, terjadi kesalahan koneksi." }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: language === 'ID' ? "Maaf, terjadi kesalahan koneksi." : "Sorry, a connection error occurred."}]);
         setIsLoading(false);
     }
   };
@@ -293,7 +293,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
           }));
           
       } catch (err) {
-          alert("Gagal upload file ke storage");
+          alert(language === 'ID' ? "Gagal upload file ke storage" : "Failed to upload file to storage");
           setAttachedFile(null); // Hapus preview jika gagal
       } finally {
           setIsUploading(false);
@@ -302,7 +302,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
   
   // --- FUNGSI ROOM ACTIONS ---
   const handleDeleteSession = async (id) => {
-      if (!confirm("Hapus room ini?")) return;
+      if (!confirm(language === 'ID' ? "Hapus room ini?" : "Delete this room?")) return;
       await axios.delete(`${API_URL}/sessions/${id}`, {
           headers: { 'Authorization': `Bearer ${session.access_token}` }
       });
@@ -311,7 +311,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
   };
   
   const handleRenameSession = async (id) => {
-      const newTitle = prompt("Masukkan nama baru:");
+      const newTitle = prompt(language === 'ID' ? "Masukkan nama baru:" : "Enter new name:");
       if (!newTitle) return;
       await axios.patch(`${API_URL}/sessions/${id}`, { title: newTitle }, {
           headers: { 'Authorization': `Bearer ${session.access_token}` }
@@ -328,7 +328,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
           setEvaluation(res.data.evaluation);
           setShowEvalModal(true); // Langsung buka modal saat hasil siap
       } catch (err) {
-          alert("Gagal mengambil laporan evaluasi.");
+          alert(language === 'ID' ? "Gagal mengambil laporan evaluasi." : "Failed to retrieve evaluation report.");
       } finally {
           setIsEvaluating(false);
       }
@@ -375,7 +375,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 onClick={handleNewChat}
                 className="flex-1 flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-700 transition-colors shadow-sm"
             >
-                <Plus size={16} /> New Chat
+                <Plus size={16} /> {language === 'ID' ? 'Chat Baru' : 'New Chat'}
             </button>
             <button onClick={() => setShowSidebar(false)} className="md:hidden ml-2 text-gray-500">
                 <PanelLeftClose size={20}/>
@@ -383,7 +383,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
         </div>
         
         <div className="flex-1 overflow-y-auto px-2 py-2">
-          <div className="text-xs font-semibold text-gray-500 mb-2 px-2">History</div>
+          <div className="text-xs font-semibold text-gray-500 mb-2 px-2">{language === 'ID' ? 'Riwayat Percakapan' : 'Conversation History'}</div>
           {sessions.map((sess) => (
             <div key={sess.id} className="relative group px-2">
               <button 
@@ -411,10 +411,10 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               {activeMenu === sess.id && (
                   <div className="absolute right-2 top-10 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-30 py-1">
                       <button onClick={() => { handleRenameSession(sess.id); setActiveMenu(null); }} className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                          <Edit3 size={12} /> Rename
+                          <Edit3 size={12} /> {language === 'ID' ? 'Ganti Nama' : 'Rename'}
                       </button>
                       <button onClick={() => { handleDeleteSession(sess.id); setActiveMenu(null); }} className="w-full text-left px-3 py-2 text-xs flex items-center gap-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-                          <Trash2 size={12} /> Delete
+                          <Trash2 size={12} /> {language === 'ID' ? 'Hapus' : 'Delete'}
                       </button>
                   </div>
               )}
@@ -430,7 +430,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all group"
             >
               <Settings size={20} className="group-hover:rotate-45 transition-transform duration-500"/>
-              <span className="text-sm font-medium">Setting & Feedback</span>
+              <span className="text-sm font-medium">{language === 'ID' ? 'Pengaturan & Masukan' : 'Settings & Feedback'}</span>
             </button>
           
             {/* Dropdown Menu Setting */}
@@ -438,7 +438,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               <div className="absolute bottom-full left-0 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-2 mb-2 z-[60] animate-in fade-in slide-in-from-bottom-4">
                 {/* Header Panel dengan Tombol X */}
                 <div className="flex justify-between items-center px-3 py-2 border-b border-gray-100 dark:border-gray-800 mb-1">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pengaturan</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{language === 'ID' ? 'Pengaturan' : 'Settings'}</span>
                   <button 
                     onClick={() => setShowSettingsMenu(false)}
                     className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
@@ -451,7 +451,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 <button onClick={() => setDarkMode(!darkMode)} className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm dark:text-gray-300">
                   <div className="flex items-center gap-3">
                     {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-                    <span>Mode {darkMode ? 'Terang' : 'Gelap'}</span>
+                    <span>Mode {darkMode ? (language === 'ID' ? 'Terang' : 'Light') : (language === 'ID' ? 'Gelap' : 'Dark')}</span>
                   </div>
                 </button>
 
@@ -476,10 +476,13 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 {/* 2. Set Profesionalitas */}
                 <div className="mt-1 p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
                   <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 mb-2 px-1">
-                    <ShieldCheck size={14} /> <span>LEVEL SALES: {profLevel}</span>
+                    <ShieldCheck size={14} /> <span>{language === 'ID' ? 'LEVEL SALES' : 'SALES LEVEL'}: {profLevel}</span>
                   </div>
                   <div className="flex gap-1">
-                    {['Pemula', 'Menengah', 'Expert'].map((lvl) => (
+                    {(language === 'ID'
+                      ? ['Pemula', 'Menengah', 'Expert']
+                      : ['Beginner', 'Intermediate', 'Expert']
+                    ).map((lvl) => (
                       <button 
                         key={lvl}
                         onClick={() => setProfLevel(lvl)}
@@ -497,7 +500,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                   className="w-full flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-sm text-gray-600 dark:text-gray-300 transition-all"
                 >
                   <MessageSquarePlus size={18} />
-                  <span>Kritik & Saran</span>
+                  <span>{language === 'ID' ? 'Kritik & Saran' : 'Feedback'}</span>
                 </button>
               </div>
             )}
@@ -515,7 +518,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
             onClick={handleLogout}
             className="flex items-center gap-2 w-full px-2 py-2 text-sm text-red-500 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
           >
-            <LogOut size={16} /> Log out
+            <LogOut size={16} /> {language === 'ID' ? 'Keluar' : 'Logout'}
           </button>
         </div>
       </div>
@@ -528,7 +531,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
             <button 
               onClick={() => setShowSidebar(!showSidebar)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 active:scale-95 transition-all text-gray-500 dark:text-gray-400"
-              title={showSidebar ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
+              title={showSidebar ? (language === 'ID' ? "Sembunyikan Sidebar" : "Hide Sidebar") : (language === 'ID' ? 'Tampilkan Sidebar' : 'Unhide Sidebar')}
             >
               {showSidebar ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
             </button>
@@ -545,7 +548,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     <Bot size={40} className="text-indigo-600 dark:text-black" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2">MediSales AI</h2>
-                <p className="text-gray-500 dark:text-gray-400">Siap membantu penjualan Anda.</p>
+                <p className="text-gray-500 dark:text-gray-400">{language === 'ID' ? 'Siap membantu penjualan Anda.' : 'Ready to help your sales.'}</p>
              </div>
           )}
 
@@ -582,7 +585,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   {msg.file_metadata.name}
                               </p>
                               <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium group-hover/file:underline">
-                                  Preview
+                                  {language === 'ID' ? 'Pratinjau' : 'Preview'}
                               </p>
                           </div>
                       </a>
@@ -673,9 +676,9 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     <span className="text-[10px] text-gray-500 dark:text-gray-400 italic">
                       {isUploading ? (
                         <span className="flex items-center gap-1">
-                          <Loader2 size={10} className="animate-spin" /> Sedang mengupload...
+                          <Loader2 size={10} className="animate-spin" /> {language === 'ID' ? 'Sedang mengupload...' : 'Uploading...'}
                         </span>
-                      ) : "File siap dikirim"}
+                      ) : (language === 'ID' ? "File siap dikirim" : "Ready to send")}
                     </span>
                   </div>
               
@@ -695,7 +698,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                  <textarea
                     rows={1}
                     className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0 resize-none py-2 px-2 max-h-40 overflow-y-auto"
-                    placeholder={`Kirim pesan ke MediSales...`}
+                    placeholder={language === 'ID' ? "Kirim pesan ke MediSales..." : "Send a message to MediSales..."}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -706,22 +709,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     }}
                     style={{ minHeight: '44px' }}
                  />
-              {/* <div className="relative flex flex-col gap-2 bg-gray-50 dark:bg-[#2f2f2f] p-3 rounded-xl border border-gray-200 dark:border-gray-600 focus-within:border-gray-400 dark:focus-within:border-gray-500 shadow-lg transition-colors">
-                 
-                 <textarea
-                    rows={1}
-                    className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0 resize-none py-2 px-2 max-h-40 overflow-y-auto"
-                    placeholder={`Kirim pesan ke MediSales...`}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if(e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSend(e)
-                      }
-                    }}
-                    style={{ minHeight: '44px' }}
-                 /> */}
+          
 
                  <div className="flex justify-between items-center mt-2 gap-2">
                     <div className="flex items-center gap-1">
@@ -734,7 +722,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                       className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
                                   >
                                       {/* Icon di dalam menu sekarang Paperclip */}
-                                      <Paperclip size={14} /> Upload File
+                                      <Paperclip size={14} /> {language === 'ID' ? 'Unggah Berkas' : 'Upload File'}
                                   </button>
                               </div>
                           )}
@@ -753,7 +741,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                       <div className="relative">
                           {showToolsMenu && (
                             <div className="absolute bottom-14 left-0 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-bottom-4">
-                              <div className="px-1 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fitur Tambahan</div>
+                              <div className="px-1 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{language === 'ID' ? 'Fitur Tambahan' : 'Additional Features'}</div>
                               
                               <div className="grid grid-cols-2 gap-2">
                                 {/* 1. RAG/Full Context Mode */}
@@ -771,7 +759,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${webSearch ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
                                   <Sparkles size={20} className={webSearch ? 'animate-pulse' : ''} />
-                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Web Search</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{language === 'ID' ? 'Pencarian Web' : 'Web Search'}</span>
                                 </button>
                           
                                 {/* 3. Geolocation */}
@@ -781,7 +769,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                 >
                                   <MapPin size={20}/>
                                   <span className="text-[10px] font-bold uppercase tracking-tighter truncate w-full px-1">
-                                    {geoLocation ? "Active" : "Location"}
+                                    {geoLocation ? (language === 'ID' ? 'Aktif' : 'Active') : (language === 'ID' ? 'Lokasi' : 'Location')}
                                   </span>
                                 </button>
                           
@@ -792,7 +780,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border border-transparent bg-gray-50 text-gray-500 hover:bg-indigo-600 hover:text-white transition-all dark:bg-gray-800 dark:text-gray-400 disabled:opacity-50"
                                 >
                                   {isEvaluating ? <Loader2 size={20} className="animate-spin" /> : <Award size={20} />}
-                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Evaluation</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{language === 'ID' ? 'Evaluasi Performa' : 'Evaluate Performance'}</span>
                                 </button>
                               </div>
                             </div>
@@ -804,7 +792,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                           >
                               {/* Icon Sparkles (Gemini-style) dan Teks Alat */}
                               <Sparkles size={20} className={showToolsMenu ? 'animate-pulse' : ''} />
-                              <span className="text-sm font-medium">Alat</span>
+                              <span className="text-sm font-medium">{language === 'ID' ? 'Alat' : 'Tools'}</span>
                           </button>
                       </div>
                     </div>
@@ -829,7 +817,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               </div>
               
               <div className="text-center text-[11px] text-gray-400 dark:text-gray-500 mt-2">
-                 MediSales AI dapat membuat kesalahan. Cek informasi penting.
+                 {language === 'ID' ? 'MediSales AI dapat membuat kesalahan. Cek informasi penting.' : 'MediSales AI can make mistakes. Check important information.'}
               </div>
            </div>
         </div>
@@ -844,7 +832,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                   <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-indigo-600 shrink-0">
                       <div className="flex items-center gap-2 text-white text-sm sm:text-base">
                           <Award size={18} />
-                          <h3 className="font-bold truncate">Sales Performance Report</h3>
+                          <h3 className="font-bold truncate">{language === 'ID' ? 'Laporan Performa Sales' : 'Sales Performance Report'}</h3>
                       </div>
                       <button onClick={() => setShowEvalModal(false)} className="text-white/80 hover:text-white">
                           <X size={20} />
@@ -866,7 +854,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                           onClick={() => setShowEvalModal(false)}
                           className="w-full sm:w-auto sm:float-right px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-medium"
                       >
-                          Tutup
+                          {language === 'ID' ? 'Tutup' : 'Close'}
                       </button>
                   </div>
               </div>
@@ -886,18 +874,18 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nama & Email</label>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{language === 'ID' ? 'Nama & Email' : 'Name & Email'}</label>
                   <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm dark:text-gray-300 border border-gray-100 dark:border-gray-700">
                     <p className="font-bold">{session?.user?.user_metadata?.full_name || 'User'}</p>
                     <p className="opacity-60 text-xs">{session?.user?.email}</p>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kritik & Saran</label>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{language === 'ID' ? 'Kritik & Saran' : 'Feedback'}</label>
                   <textarea 
                     className="w-full p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 border-none text-sm dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                     rows="4"
-                    placeholder="Apa yang bisa kami tingkatkan?"
+                    placeholder={language === 'ID' ? "Apa yang bisa kami tingkatkan?" : "What can we improve?"}
                     value={feedbackMessage}
                     onChange={(e) => setFeedbackMessage(e.target.value)}
                   />
@@ -916,13 +904,13 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     alert("Feedback terkirim ke Kami. Terima kasih!");
                     setShowFeedbackModal(false);
                     setFeedbackMessage('');
-                  } catch (err) { alert("Gagal mengirim feedback."); }
+                  } catch (err) { alert(language === 'ID' ? 'Gagal mengirim feedback.' : 'failed to send feedback'); }
                   finally { setIsSendingFeedback(false); }
                 }}
                 className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
               >
                 {isSendingFeedback ? <Loader2 className="animate-spin" /> : <Send size={18} />}
-                Kirim Feedback
+                {language === 'ID' ? 'Kirim Feedback' : 'Send Feedback'}
               </button>
             </div>
           </div>
