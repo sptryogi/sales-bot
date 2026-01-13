@@ -97,7 +97,7 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
             {
               isLogin 
                 ? (isReturningUser 
-                    ? (language === 'ID' ? "Selamat Datang Kembali" : "Welcome Back")
+                    ? (language === 'ID' ? "Selamat Datang" : "Welcome Back")
                     : (language === 'ID' ? "Selamat Datang" : "Welcome")
                   )
                 : (language === 'ID' ? "Buat Akun" : "Create Account")
