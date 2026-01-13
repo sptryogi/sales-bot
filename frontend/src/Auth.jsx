@@ -10,7 +10,15 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [errorMessage, setErrorMessage] = useState('')
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
+  const [lang, setLang] = useState(localStorage.getItem('appLang') || 'ID');
   const [isReturning, setIsReturning] = useState(false);
+
+  const toggleLang = () => {
+    const newLang = lang === 'ID' ? 'EN' : 'ID';
+    setLang(newLang);
+    localStorage.setItem('appLang', newLang);
+    window.dispatchEvent(new Event('storage')); // Trigger update ke komponen lain
+  };
 
   useEffect(() => {
     const hasVisited = localStorage.getItem('hasVisited');
@@ -76,6 +84,13 @@ export default function Auth({ darkMode, setDarkMode }) {
         className="absolute top-5 right-5 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-yellow-400 shadow-sm"
       >
         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
+      <button
+        onClick={toggleLang}
+        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold"
+      >
+        {lang === 'ID' ? '🇮🇩 ID' : '🇺🇸 EN'}
       </button>
 
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
