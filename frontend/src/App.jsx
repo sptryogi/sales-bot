@@ -11,13 +11,12 @@ function App() {
 
   // Tambahkan state language di App.jsx
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('mediSalesLang') || 'ID'
-  })
+    return localStorage.getItem('mediSalesLang') || 'ID';
+  });
   
-  // Efek simpan bahasa ke localStorage
   useEffect(() => {
-    localStorage.setItem('mediSalesLang', language)
-  }, [language])
+    localStorage.setItem('mediSalesLang', language);
+  }, [language]);
   
   const [darkMode, setDarkMode] = useState(() => {
     // Cek apakah ada setting tersimpan? Jika tidak, default true (Dark)
@@ -70,7 +69,7 @@ function App() {
   return (
     <>
       {!session ? (
-        <Auth darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={setLanguage} /> 
+        <Auth darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={setLanguage} />
       ) : (
         <Chat session={session} darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={setLanguage} />
       )}
