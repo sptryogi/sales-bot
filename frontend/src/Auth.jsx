@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { Loader2, Sun, Moon } from 'lucide-react'
 
@@ -12,9 +12,12 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [phone, setPhone] = useState('')
 
   // Tambahkan di dalam fungsi Auth, di bawah state lainnya
-  const [isReturningUser] = useState(() => {
-    return localStorage.getItem('hasVisitedBefore') === 'true';
-  });
+  const [isReturningUser, setIsReturningUser] = useState(false);
+
+  useEffect(() => {
+    const visited = localStorage.getItem('hasVisitedBefore') === 'true';
+    setIsReturningUser(visited);
+  }, []);
   
   // Tambahkan useEffect untuk menandai user sudah pernah berkunjung setelah login pertama kali
   useEffect(() => {
