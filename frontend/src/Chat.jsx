@@ -174,81 +174,85 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
 
   // 4. Handle Send (Logic Diperbaiki agar tidak hilang)
   const handleSend = async (e) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-    const userMessage = input
-    setInput('')
-    const currentFile = attachedFile; // Simpan file ke variabel lokal
+    const userMessage = input;
+    const currentFile = attachedFile;
+    const { access_token } = session;
 
-    setAttachedFile(null)    // INI KUNCINYA: Menghilangkan preview file di atas input
-    setShowUploadMenu(false) // Pastikan menu upload tertutup
+    // Reset UI Input
+    setInput('');
+    setAttachedFile(null);
+    setShowUploadMenu(false);
     
-    // UI Optimistic Update (Tampilkan pesan user duluan)
-    const tempMessages = [...messages, { role: 'user', content: userMessage, file_metadata: currentFile }]
-    setMessages(tempMessages)
-    setIsLoading(true)
+    // Optimistic Update
+    setMessages(prev => [...prev, { role: 'user', content: userMessage, file_metadata: currentFile }]);
+    setIsLoading(true);
 
     try {
-      const { access_token } = session
-      
-      const response = await axios.post(`${API_URL}/chat`, {
-        mode: mode,
-        message: userMessage,
-        session_id: currentSessionId, // Kirim ID (null jika new chat)
-        file_metadata: currentFile,
-        language: language,
-        professionalism: profLevel,
-        web_search: webSearch,
-        location_data: locationInfo
-      }, {
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+        const response = await fetch(`${API_URL}/chat`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mode: mode,
+                message: userMessage,
+                session_id: currentSessionId,
+                file_metadata: currentFile,
+                language: language,
+                professionalism: profLevel,
+                web_search: webSearch,
+                location_data: locationInfo
+            })
+        });
 
-      const fullAnswer = response.data.answer
-      const returnedSessionId = response.data.session_id
+        if (!response.ok) throw new Error('Network response was not ok');
 
-      setIsLoading(false)
-
-      // PENTING: Jika tadinya New Chat (null), sekarang kita punya ID dari backend
-      // Kita harus simpan ID ini agar chat berikutnya masuk ke room yang sama
-      if (!currentSessionId) {
-          setCurrentSessionId(returnedSessionId)
-          // Refresh list sidebar agar judul chat baru muncul
-          fetchSessions() 
-      }
-
-      // Tambahkan bubble assistant kosong untuk persiapan streaming
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }])
-      
-      // Efek Streaming
-      let currentText = ''
-      const words = fullAnswer.split(' ') 
-      
-      for (let i = 0; i < words.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 30)) 
-        currentText += (i === 0 ? '' : ' ') + words[i]
+        // --- LOGIKA SESSION ID ---
+        // Ambil ID dari header yang dikirim backend tadi
+        const returnedSessionId = response.headers.get('x-session-id');
         
-        setMessages(prev => {
-          const updated = [...prev]
-          const lastIndex = updated.length - 1
-          if (updated[lastIndex]) {
-              updated[lastIndex] = { ...updated[lastIndex], content: currentText }
-          }
-          return updated
-        })
-      }
-    
-    } catch (error) {
-      console.error("Error:", error)
-      setMessages(prev => [...prev, { role: 'assistant', content: "Maaf, terjadi kesalahan koneksi." }])
-    } finally {
-    }
-  }
+        if (!currentSessionId && returnedSessionId) {
+            setCurrentSessionId(returnedSessionId);
+            fetchSessions(); // Refresh sidebar karena ini room baru
+        }
 
+        // --- LOGIKA STREAMING ASLI ---
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        // Tambahkan bubble assistant kosong
+        setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+        setIsLoading(false); // Matikan loading/thinking dots karena teks sudah mulai masuk
+
+        let accumulatedText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            accumulatedText += chunk;
+
+            // Update pesan assistant terakhir secara real-time
+            setMessages(prev => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                updated[lastIndex] = { ...updated[lastIndex], content: accumulatedText };
+                return updated;
+            });
+        }
+
+    } catch (error) {
+        console.error("Error Streaming:", error);
+        setMessages(prev => [...prev, { role: 'assistant', content: "Maaf, terjadi kesalahan koneksi." }]);
+        setIsLoading(false);
+    }
+  };
+  
   // --- FUNGSI FILE ---
   const handleFileChange = async (e) => {
       const file = e.target.files[0];
