@@ -381,7 +381,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 onClick={handleNewChat}
                 className="flex-1 flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-700 transition-colors shadow-sm"
             >
-                <Plus size={16} /> {language === 'ID' ? 'Chat Baru' : 'New Chat'}
+                <Plus size={16} /> {language === 'ID' ? 'Percakapan Baru' : 'New Chat'}
             </button>
             <button onClick={() => setShowSidebar(false)} className="md:hidden ml-2 text-gray-500">
                 <PanelLeftClose size={20}/>
