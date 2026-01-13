@@ -94,7 +94,14 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {isLogin ? (isReturningUser ? "Welcome Back" : "Welcome") : 'Create Account'}
+            {
+              isLogin 
+                ? (isReturningUser 
+                    ? (language === 'ID' ? "Selamat Datang Kembali" : "Welcome Back")
+                    : (language === 'ID' ? "Selamat Datang" : "Welcome")
+                  )
+                : (language === 'ID' ? "Buat Akun" : "Create Account")
+            }
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             MediSales AI Assistant
@@ -162,7 +169,7 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
             className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-all"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLogin ? 'Sign in' : 'Sign up'}
+            {isLogin ? (language === 'ID' ? 'Masuk' : 'Sign In') : {language === 'ID' ? 'Daftar' : 'Sign Up'}}
           </button>
         </form>
 
