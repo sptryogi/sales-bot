@@ -352,6 +352,12 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
     // Jalankan saat load
     handleResize()
   }, [])
+
+  const levels = [
+    { id: "Pemula", label: language === 'ID' ? "Pemula" : "Beginner" },
+    { id: "Menengah", label: language === 'ID' ? "Menengah" : "Intermediate" },
+    { id: "Expert", label: "Expert" }
+  ];
   
 
   return (
@@ -479,16 +485,17 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     <ShieldCheck size={14} /> <span>{language === 'ID' ? 'LEVEL SALES' : 'SALES LEVEL'}: {profLevel}</span>
                   </div>
                   <div className="flex gap-1">
-                    {(language === 'ID'
-                      ? ['Pemula', 'Menengah', 'Expert']
-                      : ['Beginner', 'Intermediate', 'Expert']
-                    ).map((lvl) => (
-                      <button 
-                        key={lvl}
-                        onClick={() => setProfLevel(lvl)}
-                        className={`flex-1 text-[10px] py-1.5 rounded-lg border transition-all font-medium ${profLevel === lvl ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500'}`}
+                    {levels.map((lvl) => (
+                      <button
+                        key={lvl.id}
+                        onClick={() => setProfLevel(lvl.id)}
+                        className={`flex-1 text-[10px] py-1.5 rounded-lg border transition-all font-medium ${
+                          profLevel === lvl.id
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500'
+                        }`}
                       >
-                        {lvl}
+                        {lvl.label}
                       </button>
                     ))}
                   </div>
