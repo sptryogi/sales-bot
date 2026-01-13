@@ -70,7 +70,12 @@ function App() {
   return (
     <>
       {!session ? (
-        <Auth darkMode={darkMode} setDarkMode={setDarkMode} />
+        <Auth 
+          darkMode={darkMode} 
+          setDarkMode={setDarkMode}
+          language={language}
+          setLanguage={setLanguage}
+        />
       ) : (
         <Chat 
           session={session} 
