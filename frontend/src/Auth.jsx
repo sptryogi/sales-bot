@@ -10,6 +10,16 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [errorMessage, setErrorMessage] = useState('')
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
+  const [isReturning, setIsReturning] = useState(false);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (hasVisited) {
+      setIsReturning(true);
+    } else {
+      localStorage.setItem('hasVisited', 'true');
+    }
+  }, []);
 
   const handleAuth = async (e) => {
     e.preventDefault()
@@ -70,8 +80,9 @@ export default function Auth({ darkMode, setDarkMode }) {
 
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {isReturning ? (isLogin ? (lang === 'ID' ? 'Selamat Datang Kembali' : 'Welcome Back') : (lang === 'ID' ? 'Daftar Akun' : 'Sign Up')) 
+                        : (lang === 'ID' ? 'Selamat Datang' : 'Welcome')}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             MediSales AI Assistant
