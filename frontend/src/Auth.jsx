@@ -11,6 +11,8 @@ export default function Auth({ darkMode, setDarkMode }) {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
 
+  const isFirstVisit = !localStorage.getItem('hasVisitedBefore');
+  
   const handleAuth = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -19,6 +21,7 @@ export default function Auth({ darkMode, setDarkMode }) {
     let error;
     if (isLogin) {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      localStorage.setItem('hasVisitedBefore', 'true')
       error = signInError
     } else {
       // Saat SignUp, Supabase akan otomatis mengirim email konfirmasi jika setting Confirm Email aktif
@@ -70,8 +73,10 @@ export default function Auth({ darkMode, setDarkMode }) {
 
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            {language === 'ID' 
+              ? (isFirstVisit ? 'Selamat Datang' : 'Selamat Datang Kembali') 
+              : (isFirstVisit ? 'Welcome' : 'Welcome Back')}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             MediSales AI Assistant
