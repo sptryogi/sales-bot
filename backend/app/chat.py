@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
@@ -172,21 +173,25 @@ def chat(payload: dict, user=Depends(get_current_user)):
     res = client.chat.completions.create(
         model="deepseek-chat",
         messages=messages,
-        stream=False # Matikan stream di backend
+        stream=True 
     )
 
-    full_answer = res.choices[0].message.content
+    def stream_generator():
+        full_answer = ""
+        for chunk in res:
+            if chunk.choices and chunk.choices[0].delta.content:
+                text = chunk.choices[0].delta.content
+                full_answer += text
+                yield text
+    
+        save_chat(user.id, "user", message, session_id, file_metadata)
+        save_chat(user.id, "assistant", full_answer, session_id)
+    
+        if len(history) == 0:
+            clean_title = full_answer[:50].replace("*", "").replace("#", "").strip()
+            update_session_title(session_id, clean_title)
 
-    save_chat(user.id, "user", message, session_id, file_metadata)
-    save_chat(user.id, "assistant", full_answer, session_id)
-
-    # Update judul session jika ini chat pertama (logic sederhana)
-    if len(history) == 0:
-         # Bersihkan judul dari markdown asing di backend sekalian
-         clean_title = full_answer[:50].replace("*", "").replace("#", "").strip()
-         update_session_title(session_id, clean_title)
-
-    return {"answer": full_answer, "session_id": session_id}
+    return StreamingResponse(stream_generator(), media_type="text/plain")
 
 @router.get("/evaluate-sales")
 def evaluate_sales(user=Depends(get_current_user)):
