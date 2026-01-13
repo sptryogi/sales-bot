@@ -85,7 +85,7 @@ export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
 
       <button
         onClick={() => setLanguage(language === 'ID' ? 'EN' : 'ID')}
-        className="absolute top-5 right-5 p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-yellow-400 shadow-sm"
+        className="absolute top-5 left-5 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors flex items-center gap-2 text-xs font-bold shadow-sm"
       >
         <Languages size={20} />
         <span>{language}</span>
