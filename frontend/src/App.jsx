@@ -8,16 +8,6 @@ function App() {
   const [loading, setLoading] = useState(true)
   // Default Dark Mode
   // --- PERBAIKAN: BACA DARI LOCAL STORAGE ---
-
-  // Tambahkan state language di App.jsx
-  const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('mediSalesLang') || 'ID';
-  });
-  
-  useEffect(() => {
-    localStorage.setItem('mediSalesLang', language);
-  }, [language]);
-  
   const [darkMode, setDarkMode] = useState(() => {
     // Cek apakah ada setting tersimpan? Jika tidak, default true (Dark)
     const savedTheme = localStorage.getItem('mediSalesTheme')
@@ -69,9 +59,9 @@ function App() {
   return (
     <>
       {!session ? (
-        <Auth darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={setLanguage} />
+        <Auth darkMode={darkMode} setDarkMode={setDarkMode} /> 
       ) : (
-        <Chat session={session} darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={setLanguage} />
+        <Chat session={session} darkMode={darkMode} setDarkMode={setDarkMode} />
       )}
     </>
   )
