@@ -88,9 +88,11 @@ def chat(payload: dict, user=Depends(get_current_user)):
     prof_level = payload.get("professionalism", "Pemula") # Default ke Pemula
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
-    if not session_id:
+    if not session_id or session_id == "null":
         new_sess = create_session(user.id, message[:30])
-        session_id = new_sess['id']
+        session_id = str(new_sess['id']) # Paksa jadi string
+    else:
+        session_id = str(session_id)
 
     history = load_chat(user.id, session_id)
 
@@ -184,14 +186,18 @@ def chat(payload: dict, user=Depends(get_current_user)):
                 full_answer += text
                 yield text
     
-        save_chat(user.id, "user", message, session_id, file_metadata)
-        save_chat(user.id, "assistant", full_answer, session_id)
-    
-        if len(history) == 0:
+        save_chat(user.id, session_id, "user", message, file_metadata)
+        save_chat(user.id, session_id, "assistant", full_answer)
+
+        current_history = load_chat(user.id, session_id)
+        if len(history) == 2:
             clean_title = full_answer[:50].replace("*", "").replace("#", "").strip()
             update_session_title(session_id, clean_title)
 
-    return StreamingResponse(stream_generator(), media_type="text/plain")
+    return StreamingResponse(stream_generator(), media_type="text/plain", headers={
+            "x-session-id": session_id,
+            "Access-Control-Expose-Headers": "x-session-id"
+        })
 
 @router.get("/evaluate-sales")
 def evaluate_sales(user=Depends(get_current_user)):
