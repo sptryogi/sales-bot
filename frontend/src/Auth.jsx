@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { Loader2, Sun, Moon } from 'lucide-react'
+import { Loader2, Sun, Moon, Languages } from 'lucide-react'
 
-export default function Auth({ darkMode, setDarkMode }) {
+export default function Auth({ darkMode, setDarkMode, language, setLanguage }) {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -83,6 +83,14 @@ export default function Auth({ darkMode, setDarkMode }) {
         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
+      <button
+        onClick={() => setLanguage(language === 'ID' ? 'EN' : 'ID')}
+        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors flex items-center gap-2 text-xs font-bold"
+      >
+        <Languages size={20} />
+        <span>{language}</span>
+      </button>
+
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-xl border border-gray-200 dark:border-gray-700">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -102,7 +110,7 @@ export default function Auth({ darkMode, setDarkMode }) {
                     type="text"
                     required
                     className="block w-full rounded-md border-0 bg-gray-50 dark:bg-gray-700 py-2.5 px-3 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Nama Lengkap"
+                    placeholder={language === 'ID' ? 'Nama Lengkap' : 'Full Name'}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
@@ -112,7 +120,7 @@ export default function Auth({ darkMode, setDarkMode }) {
                     type="tel"
                     required
                     className="block w-full rounded-md border-0 bg-gray-50 dark:bg-gray-700 py-2.5 px-3 text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 dark:ring-gray-600 focus:ring-2 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Nomor HP (Contoh: 0812...)"
+                    placeholder={language === 'ID' ? 'Nomor HP (Contoh: 0812...)' : 'Mobile Number (Example: 0812...)'}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
@@ -163,7 +171,14 @@ export default function Auth({ darkMode, setDarkMode }) {
             onClick={() => { setIsLogin(!isLogin); setErrorMessage(''); }}
             className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
           >
-            {isLogin ? "Belum punya akun? Daftar" : "Sudah punya akun? Masuk"}
+            {isLogin 
+              ? (language === 'ID' 
+                  ? 'Belum punya akun? Daftar' 
+                  : "Don't have an account? Sign Up")
+              : (language === 'ID' 
+                  ? 'Sudah punya akun? Masuk' 
+                  : "Already have an account? Sign in")
+            }
           </button>
         </div>
       </div>
