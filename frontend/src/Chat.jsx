@@ -730,7 +730,7 @@ export default function Chat({ session, darkMode, setDarkMode }) {
                       <div className="relative">
                           {showToolsMenu && (
                             <div className="absolute bottom-14 left-0 w-72 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-bottom-4">
-                              <div className="px-1 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alat Penjualan</div>
+                              <div className="px-1 mb-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fitur Tambahan</div>
                               
                               <div className="grid grid-cols-2 gap-2">
                                 {/* 1. RAG/Full Context Mode */}
