@@ -451,20 +451,23 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                   </div>
                 </button>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => setLanguage(language === 'ID' ? 'EN' : 'ID')}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm"
+                >
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
-                      <Languages size={18} /> 
+                      <Languages size={18} />
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Bahasa</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {language === 'ID' ? 'Bahasa' : 'Language'}
+                    </span>
                   </div>
-                  <button
-                    onClick={() => setLanguage(language === 'ID' ? 'EN' : 'ID')}
-                    className="px-3 py-1 text-xs font-bold rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-                  >
-                    {language === 'ID' ? "ID (Indonesia)" : "EN (English)"}
-                  </button>
-                </div>
+                
+                  <span className="px-3 py-1 text-xs font-bold rounded-full bg-indigo-600 text-white">
+                    {language === 'ID' ? 'ID (Indonesia)' : 'EN (English)'}
+                  </span>
+                </button>
           
                 {/* 2. Set Profesionalitas */}
                 <div className="mt-1 p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
