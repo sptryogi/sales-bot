@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
+import AdminDashboard from './AdminDashboard'; // Pastikan path filenya benar
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -8,11 +9,12 @@ import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Pap
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-export default function Chat({ session, darkMode, setDarkMode, language, setLanguage }) {
+export default function Chat({ session, darkMode, setDarkMode, language, setLanguage, role }) {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([]) 
   const [sessions, setSessions] = useState([]) // Daftar Room
   const [currentSessionId, setCurrentSessionId] = useState(null) // Room Aktif
+  const [showAdminPanel, setShowAdminPanel] = useState(false); // State baru
 
   const [activeMenu, setActiveMenu] = useState(null); // Untuk tracking titik tiga mana yang terbuka
   const [attachedFile, setAttachedFile] = useState(null); // File yang akan diupload
@@ -387,6 +389,18 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 <PanelLeftClose size={20}/>
             </button>
         </div>
+        
+        {(role === 'admin' || role === 'superadmin') && (
+          <button 
+            onClick={() => setShowAdminPanel(true)}
+            className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-indigo-600 font-bold rounded-xl transition-all mb-2"
+          >
+            <ShieldCheck size={20} />
+            <span className="text-sm">
+              {language === 'ID' ? 'Panel Admin' : 'Admin Panel'}
+            </span>
+          </button>
+        )}
         
         <div className="flex-1 overflow-y-auto px-2 py-2">
           <div className="text-xs font-semibold text-gray-500 mb-2 px-2">{language === 'ID' ? 'Riwayat Percakapan' : 'Conversation History'}</div>
@@ -930,6 +944,14 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
             </div>
           </div>
         </div>
+      )}
+
+      {showAdminPanel && (
+        <AdminDashboard 
+          session={session} 
+          language={language} 
+          onClose={() => setShowAdminPanel(false)} 
+        />
       )}
     </div>
   )
