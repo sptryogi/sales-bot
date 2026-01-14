@@ -105,11 +105,26 @@ def get_admin_stats_db():
     
     # 3. Total Users
     total_users = sb.table("account").select("*", count="exact").execute().count
+
+    active_res = sb.table("chat_sessions") \
+        .select("user_id") \
+        .execute()
+    
+    from collections import Counter
+    user_counts = Counter([item['user_id'] for item in active_res.data])
+    most_active_id = user_counts.most_common(1)[0][0] if user_counts else None
+    
+    most_active_name = "-"
+    if most_active_id:
+        u_res = sb.table("account").select("full_name").eq("id", most_active_id).single().execute()
+        if u_res.data:
+            most_active_name = u_res.data['full_name']
     
     return {
         "total_chats": total_chats,
         "chats_today": chats_today,
         "total_users": total_users,
+        "most_active_user": most_active_name,
         "avg_performance": 4.5 # Jika ada tabel feedback, hitung rata-rata di sini
     }
 
