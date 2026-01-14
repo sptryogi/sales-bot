@@ -390,18 +390,6 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
             </button>
         </div>
         
-        {(role === 'admin' || role === 'superadmin') && (
-          <button 
-            onClick={() => setShowAdminPanel(true)}
-            className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-indigo-600 font-bold rounded-xl transition-all mb-2"
-          >
-            <ShieldCheck size={20} />
-            <span className="text-sm">
-              {language === 'ID' ? 'Panel Admin' : 'Admin Panel'}
-            </span>
-          </button>
-        )}
-        
         <div className="flex-1 overflow-y-auto px-2 py-2">
           <div className="text-xs font-semibold text-gray-500 mb-2 px-2">{language === 'ID' ? 'Riwayat Percakapan' : 'Conversation History'}</div>
           {sessions.map((sess) => (
@@ -535,6 +523,17 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 {session.user.email}
              </div>
           </div>
+          {(role === 'admin' || role === 'superadmin') && (
+            <button 
+              onClick={() => setShowAdminPanel(true)}
+              className="flex items-center gap-3 w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-indigo-600 font-bold rounded-xl transition-all mb-2"
+            >
+              <ShieldCheck size={20} />
+              <span className="text-sm">
+                {language === 'ID' ? 'Panel Admin' : 'Admin Panel'}
+              </span>
+            </button>
+          )}
           <button 
             onClick={handleLogout}
             className="flex items-center gap-2 w-full px-2 py-2 text-sm text-red-500 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
