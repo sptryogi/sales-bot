@@ -9,40 +9,79 @@ export default function AdminDashboard({ session, onClose, language }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [stats, setStats] = useState({ totalUsers: 0, totalChats: 0, totalFeedback: 0 });
-  const myRole = session.user.user_metadata.role || 'admin';
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'users', 'feedback'
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [stats, setStats] = useState({ 
+    totalUsers: 0, 
+    totalChats: 0, 
+    chatsToday: 0, 
+    mostActiveUser: '-',
+    avgScore: 0 
+  });
+  const [myRole, setMyRole] = useState('sales');
 
   useEffect(() => {
-    fetchData();
+    fetchInitialData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchInitialData = async () => {
     setLoading(true);
-    // 1. Ambil Data User (dari tabel profiles yang kita buat di Step 1)
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    // 2. Ambil Statistik Sederhana
-    const { count: chatCount } = await supabase.from('chat_history').select('*', { count: 'exact', head: true });
     
-    if (!error) {
-      setUsers(profiles);
-      setStats({
-        totalUsers: profiles.length,
-        totalChats: chatCount || 0,
-        totalFeedback: 0 // Anda bisa fetch dari tabel feedback jika sudah ada
-      });
-    }
+    // 1. Ambil Role saya yang SEBENARNYA dari tabel account
+    const { data: myProfile } = await supabase
+      .from('account')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (myProfile) setMyRole(myProfile.role);
+
+    await fetchData();
     setLoading(false);
   };
 
+  const fetchData = async () => {
+    // Ambil Data User
+    const { data: profiles } = await supabase
+      .from('account')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    // Ambil Statistik Chat Hari Ini
+    const today = new Date().toISOString().split('T')[0];
+    const { count: todayCount } = await supabase
+      .from('chat_history')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', today);
+
+    // Ambil Feedback & Evaluasi
+    const { data: feedbackData } = await supabase
+      .from('feedbacks') // Asumsi nama tabel feedback
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    // Hitung User Teraktif (Sederhana: User dengan session terbanyak)
+    const { data: activeData } = await supabase.rpc('get_most_active_user'); 
+    // ^ Jika tidak pakai RPC, bisa fetch semua session lalu hitung manual di JS
+
+    if (profiles) {
+      setUsers(profiles);
+      setFeedbacks(feedbackData || []);
+      setStats({
+        totalUsers: profiles.length,
+        totalChats: 0, // Bisa diisi total row chat_history
+        chatsToday: todayCount || 0,
+        mostActiveUser: profiles[0]?.full_name || '-', // Placeholder
+        avgScore: 4.5 // Contoh score evaluasi
+      });
+    }
+  };
+  
   const handleUpdateRole = async (userId, newRole) => {
-    if (myRole !== 'superadmin') return alert("Hanya Superadmin yang bisa mengubah role!");
+    if (myRole !== 'superadmin') return alert(language === 'ID' ? "Hanya Superadmin yang bisa mengubah role!" : "Only Superadmin can change roles!");
     
     const { error } = await supabase
-      .from('profiles')
+      .from('account')
       .update({ role: newRole })
       .eq('id', userId);
 
@@ -71,110 +110,151 @@ export default function AdminDashboard({ session, onClose, language }) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
-        {/* STATS CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard 
-            icon={<Users className="text-blue-600" />} 
-            label={language === 'ID' ? "Total Pengguna" : "Total Users"} 
-            value={stats.totalUsers} 
-            color="bg-blue-50 dark:bg-blue-900/20"
-          />
-          <StatCard 
-            icon={<MessageSquare className="text-green-600" />} 
-            label={language === 'ID' ? "Total Percakapan" : "Total Chats"} 
-            value={stats.totalChats} 
-            color="bg-green-50 dark:bg-green-900/20"
-          />
-          <StatCard 
-            icon={<Activity className="text-amber-600" />} 
-            label={language === 'ID' ? "Role Anda" : "Your Role"} 
-            value={myRole.toUpperCase()} 
-            color="bg-amber-50 dark:bg-amber-900/20"
-          />
+      {/* TAB NAVIGATION */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
+        <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl w-fit gap-2 font-bold">
+          <button 
+            onClick={() => setActiveTab('stats')}
+            className={`px-6 py-2 rounded-xl text-sm transition-all ${activeTab === 'stats' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
+          >
+            {language === 'ID' ? 'Statistik' : 'Stats'}
+          </button>
+          <button 
+            onClick={() => setActiveTab('users')}
+            className={`px-6 py-2 rounded-xl text-sm transition-all ${activeTab === 'users' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
+          >
+            {language === 'ID' ? 'Pengguna' : 'Users'}
+          </button>
+          <button 
+            onClick={() => setActiveTab('feedback')}
+            className={`px-6 py-2 rounded-xl text-sm transition-all ${activeTab === 'feedback' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
+          >
+            Feedback
+          </button>
         </div>
+      </div>
 
-        {/* USER TABLE SECTION */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl border dark:border-gray-700 shadow-sm overflow-hidden">
-          <div className="p-6 border-b dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h2 className="text-lg font-bold dark:text-white">
-              {language === 'ID' ? "Manajemen Pengguna" : "User Management"}
-            </h2>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input 
-                type="text"
-                placeholder={language === 'ID' ? "Cari nama atau email..." : "Search name or email..."}
-                className="pl-10 pr-4 py-2 rounded-xl border dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none w-full md:w-64"
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
+
+        {/* TAB STATISTIK */}
+        {activeTab === 'stats' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard 
+              icon={<Activity className="text-green-600" />} 
+              label={language === 'ID' ? "Chat Hari Ini" : "Chats Today"} 
+              value={stats.chatsToday} 
+              color="bg-green-50 dark:bg-green-900/20"
+            />
+            <StatCard 
+              icon={<Users className="text-blue-600" />} 
+              label={language === 'ID' ? "User Teraktif" : "Most Active"} 
+              value={stats.mostActiveUser} 
+              color="bg-blue-50 dark:bg-blue-900/20"
+            />
+            <StatCard 
+              icon={<Star className="text-amber-600" />} 
+              label={language === 'ID' ? "Rata-rata Skor" : "Avg Score"} 
+              value={stats.avgScore} 
+              color="bg-amber-50 dark:bg-amber-900/20"
+            />
+            <StatCard 
+              icon={<Shield className="text-purple-600" />} 
+              label="Role" 
+              value={myRole.toUpperCase()} 
+              color="bg-purple-50 dark:bg-purple-900/20"
+            />
+          </div>
+        )}
+      
+        {/* TAB USER MANAGEMENT */}
+        {activeTab === 'users' && (
+          <div className="bg-white dark:bg-gray-800 rounded-3xl border dark:border-gray-700 shadow-sm overflow-hidden">
+      
+            {/* HEADER */}
+            <div className="p-6 border-b dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h2 className="text-lg font-bold dark:text-white">
+                {language === 'ID' ? "Manajemen Pengguna" : "User Management"}
+              </h2>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input 
+                  type="text"
+                  placeholder={language === 'ID' ? "Cari nama atau email..." : "Search name or email..."}
+                  className="pl-10 pr-4 py-2 rounded-xl border dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none w-full md:w-64"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+      
+            {/* TABLE */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase font-semibold">
+                  <tr>
+                    <th className="px-6 py-4">User</th>
+                    <th className="px-6 py-4">Role</th>
+                    <th className="px-6 py-4">Created</th>
+                    <th className="px-6 py-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y dark:divide-gray-700">
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold dark:text-white">{user.full_name || 'Anonymous'}</span>
+                          <span className="text-xs text-gray-500">{user.email}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-gray-100 text-gray-600">
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-500">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        {myRole === 'superadmin' && user.id !== session.user.id && (
+                          <div className="flex gap-2">
+                            <button onClick={() => handleUpdateRole(user.id,'admin')}>
+                              <UserPlus size={16}/>
+                            </button>
+                            <button onClick={() => handleUpdateRole(user.id,'sales')}>
+                              <UserMinus size={16}/>
+                            </button>
+                            <button className="text-red-600">
+                              <Trash2 size={16}/>
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase font-semibold">
-                <tr>
-                  <th className="px-6 py-4">User</th>
-                  <th className="px-6 py-4">Role</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y dark:divide-gray-700">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-bold dark:text-white">{user.full_name || 'Anonymous'}</span>
-                        <span className="text-xs text-gray-500">{user.email}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        user.role === 'superadmin' ? 'bg-purple-100 text-purple-600' : 
-                        user.role === 'admin' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {myRole === 'superadmin' && user.id !== session.user.id && (
-                          <>
-                            {user.role === 'sales' ? (
-                              <button 
-                                onClick={() => handleUpdateRole(user.id, 'admin')}
-                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
-                                title="Promote to Admin"
-                              >
-                                <UserPlus size={18} />
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => handleUpdateRole(user.id, 'sales')}
-                                className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg"
-                                title="Demote to Sales"
-                              >
-                                <UserMinus size={18} />
-                              </button>
-                            )}
-                            <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                              <Trash2 size={18} />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        )}
+      
+        {/* TAB FEEDBACK */}
+        {activeTab === 'feedback' && (
+          <div className="grid grid-cols-1 gap-4">
+            {feedbacks.map((fb) => (
+              <div key={fb.id} className="p-6 bg-white dark:bg-gray-800 rounded-3xl border dark:border-gray-700 flex justify-between">
+                <div>
+                  <div className="font-bold">{fb.name}</div>
+                  <div className="text-xs text-gray-500">{fb.email}</div>
+                  <p className="text-sm mt-2 italic">"{fb.message}"</p>
+                </div>
+                <button className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold">
+                  <Search size={14}/> Intip Chat
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
+      
       </div>
     </div>
   );
