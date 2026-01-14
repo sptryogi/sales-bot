@@ -138,6 +138,12 @@ def update_user_role_db(user_id, new_role):
     res = sb.table("account").update({"role": new_role}).eq("id", user_id).execute()
     return len(res.data) > 0
 
+def get_feedbacks_db():
+    sb = get_supabase()
+    # Mengambil feedback terbaru
+    res = sb.table("feedbacks").select("*").order("created_at", desc=True).execute()
+    return res.data
+
 def get_user_chat_history_admin(user_id):
     sb = get_supabase()
     # Mengambil semua chat history berdasarkan user_id target
