@@ -908,7 +908,10 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                       email: session?.user?.email,
                       message: feedbackMessage
                     });
-                    alert("Feedback terkirim ke Kami. Terima kasih!");
+                    alert(language === 'ID'
+                      ? "Feedback berhasil dikirim. Terima kasih!"
+                      : "Feedback sent successfully. Thank you!"
+                    );
                     setShowFeedbackModal(false);
                     setFeedbackMessage('');
                   } catch (err) { alert(language === 'ID' ? 'Gagal mengirim feedback.' : 'failed to send feedback'); }
