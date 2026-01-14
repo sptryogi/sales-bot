@@ -6,6 +6,28 @@ import Chat from './Chat'
 function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  // 1. Tambahkan state role di bawah state session
+  const [role, setRole] = useState('sales');
+  
+  // 2. Tambahkan useEffect untuk ambil role saat session tersedia
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (session?.user?.id) {
+        const { data, error } = await supabase
+          .from('account') // Nama tabel Anda
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (data && !error) {
+          setRole(data.role);
+        }
+      }
+    };
+  
+    fetchRole();
+  }, [session]);
+  
   // Default Dark Mode
   // --- PERBAIKAN: BACA DARI LOCAL STORAGE ---
 
