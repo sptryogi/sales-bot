@@ -105,6 +105,7 @@ function App() {
           setDarkMode={setDarkMode} 
           language={language} 
           setLanguage={setLanguage} 
+          role={role}
         />
       )}
     </>
