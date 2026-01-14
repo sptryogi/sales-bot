@@ -301,3 +301,10 @@ def peek_chat_history(target_user_id: str, user=Depends(get_current_user)):
     # Admin bisa melihat history user manapun
     history = get_user_chat_history_admin(target_user_id)
     return history
+    
+@router.get("/admin/feedbacks")
+def get_feedbacks(user=Depends(get_current_user)):
+    verify_admin(user)
+    # Panggil fungsi dari supabase_db
+    from .supabase_db import get_feedbacks_db
+    return get_feedbacks_db()
