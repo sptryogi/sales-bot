@@ -3,7 +3,11 @@ from fastapi.responses import StreamingResponse
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
-from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session 
+from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session, get_admin_stats_db, 
+    get_all_users_db, 
+    update_user_role_db, 
+    get_user_chat_history_admin,
+    get_user_role 
 from .rag import load_rag
 import tempfile
 import requests
@@ -256,3 +260,48 @@ async def send_feedback(payload: dict, user=Depends(get_current_user)):
     except Exception as e:
         print("Feedback Error:", e)
         raise HTTPException(status_code=500, detail="Failed to save feedback")
+
+
+# --- HELPER: PROTEKSI ROLE ---
+def verify_admin(user, require_superadmin=False):
+    role = get_user_role(user.id)
+    if not role or role not in ['admin', 'superadmin']:
+        raise HTTPException(status_code=403, detail="Akses ditolak: Anda bukan Admin")
+    if require_superadmin and role != 'superadmin':
+        raise HTTPException(status_code=403, detail="Akses ditolak: Butuh hak Superadmin")
+    return role
+
+# --- ADMIN ENDPOINTS ---
+
+@router.get("/admin/stats")
+def get_admin_stats(user=Depends(get_current_user)):
+    verify_admin(user) # Cek apakah admin/superadmin
+    stats = get_admin_stats_db()
+    return stats
+
+@router.get("/admin/users")
+def get_all_users(user=Depends(get_current_user)):
+    verify_admin(user)
+    users = get_all_users_db()
+    return users
+
+@router.post("/admin/change-role")
+def change_user_role(payload: dict, user=Depends(get_current_user)):
+    # WAJIB: Hanya superadmin yang bisa mengubah role
+    verify_admin(user, require_superadmin=True)
+    
+    target_user_id = payload.get("user_id")
+    new_role = payload.get("role")
+    
+    if new_role not in ['sales', 'admin', 'superadmin']:
+        raise HTTPException(status_code=400, detail="Role tidak valid")
+        
+    success = update_user_role_db(target_user_id, new_role)
+    return {"status": "success" if success else "failed"}
+
+@router.get("/admin/peek-chat/{target_user_id}")
+def peek_chat_history(target_user_id: str, user=Depends(get_current_user)):
+    verify_admin(user)
+    # Admin bisa melihat history user manapun
+    history = get_user_chat_history_admin(target_user_id)
+    return history
