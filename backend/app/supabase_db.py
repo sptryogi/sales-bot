@@ -36,13 +36,14 @@ def get_user_sessions(user_id):
     return res.data
     
 def save_feedback(user_id, name, email, message):
+    sb = get_supabase()
     data = {
         "user_id": user_id,
         "name": name,
         "email": email,
         "message": message
     }
-    return supabase.table("feedbacks").insert(data).execute()
+    return sb.table("feedbacks").insert(data).execute()
 
 def save_chat(user_id, role, content, session_id=None, file_metadata=None):
     sb = get_supabase()
