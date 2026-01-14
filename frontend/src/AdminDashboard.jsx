@@ -42,15 +42,13 @@ export default function AdminDashboard({ session, onClose, language }) {
 
   const fetchData = async () => {
     try {
-      // 1. Ambil Statistik dari API Python
-      const statsRes = await axios.get(`${API_URL}/admin/stats`, {
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      });
-      
-      // 2. Ambil List User dari API Python
-      const usersRes = await axios.get(`${API_URL}/admin/users`, {
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      });
+      // Gunakan axios untuk memanggil backend Python
+      const [statsRes, usersRes, feedbackRes] = await Promise.all([
+        axios.get(`${API_URL}/admin/stats`, { headers: { Authorization: `Bearer ${session.access_token}` } }),
+        axios.get(`${API_URL}/admin/users`, { headers: { Authorization: `Bearer ${session.access_token}` } }),
+        // Asumsi Anda akan menambahkan endpoint feedbacks di backend
+        axios.get(`${API_URL}/admin/feedbacks`, { headers: { Authorization: `Bearer ${session.access_token}` } }).catch(() => ({ data: [] }))
+      ]);
   
       setStats({
         totalUsers: statsRes.data.total_users,
@@ -61,11 +59,12 @@ export default function AdminDashboard({ session, onClose, language }) {
       });
       
       setUsers(usersRes.data);
-      
+      setFeedbacks(feedbackRes.data);
     } catch (err) {
       console.error(language === 'ID' ? "Gagal fetch data admin:" : "Failed to fetch admin data:", err);
     }
   };
+
   
   const handleUpdateRole = async (userId, newRole) => {
     if (myRole !== 'superadmin') {
