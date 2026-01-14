@@ -523,9 +523,6 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 {session.user.email}
              </div>
           </div>
-          <div className="text-xs text-red-500">
-            Role: {role}
-          </div>
 
           {(role === 'admin' || role === 'superadmin') && (
             <button 
