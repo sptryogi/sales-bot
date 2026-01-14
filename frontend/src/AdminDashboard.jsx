@@ -41,51 +41,50 @@ export default function AdminDashboard({ session, onClose, language }) {
   };
 
   const fetchData = async () => {
-    // Ambil Data User
-    const { data: profiles } = await supabase
-      .from('account')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    // Ambil Statistik Chat Hari Ini
-    const today = new Date().toISOString().split('T')[0];
-    const { count: todayCount } = await supabase
-      .from('chat_history')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', today);
-
-    // Ambil Feedback & Evaluasi
-    const { data: feedbackData } = await supabase
-      .from('feedbacks') // Asumsi nama tabel feedback
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    // Hitung User Teraktif (Sederhana: User dengan session terbanyak)
-    const { data: activeData } = await supabase.rpc('get_most_active_user'); 
-    // ^ Jika tidak pakai RPC, bisa fetch semua session lalu hitung manual di JS
-
-    if (profiles) {
-      setUsers(profiles);
-      setFeedbacks(feedbackData || []);
-      setStats({
-        totalUsers: profiles.length,
-        totalChats: 0, // Bisa diisi total row chat_history
-        chatsToday: todayCount || 0,
-        mostActiveUser: profiles[0]?.full_name || '-', // Placeholder
-        avgScore: 4.5 // Contoh score evaluasi
+    try {
+      // 1. Ambil Statistik dari API Python
+      const statsRes = await axios.get(`${API_URL}/admin/stats`, {
+        headers: { Authorization: `Bearer ${session.access_token}` }
       });
+      
+      // 2. Ambil List User dari API Python
+      const usersRes = await axios.get(`${API_URL}/admin/users`, {
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+  
+      setStats({
+        totalUsers: statsRes.data.total_users,
+        totalChats: statsRes.data.total_chats,
+        chatsToday: statsRes.data.chats_today,
+        mostActiveUser: statsRes.data.most_active_user || '-',
+        avgScore: statsRes.data.avg_performance
+      });
+      
+      setUsers(usersRes.data);
+      
+    } catch (err) {
+      console.error(language === 'ID' ? "Gagal fetch data admin:" : "Failed to fetch admin data:", err);
     }
   };
   
   const handleUpdateRole = async (userId, newRole) => {
-    if (myRole !== 'superadmin') return alert(language === 'ID' ? "Hanya Superadmin yang bisa mengubah role!" : "Only Superadmin can change roles!");
-    
-    const { error } = await supabase
-      .from('account')
-      .update({ role: newRole })
-      .eq('id', userId);
-
-    if (!error) fetchData();
+    if (myRole !== 'superadmin') {
+      return alert(language === 'ID' ? "Hanya Superadmin yang bisa!" : "Only Superadmin can!");
+    }
+  
+    try {
+      await axios.post(`${API_URL}/admin/change-role`, {
+        user_id: userId,
+        role: newRole
+      }, {
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+      
+      alert(language === 'ID' ? "Role berhasil diupdate" : "Role has updated");
+      fetchData(); // Refresh data
+    } catch (err) {
+      alert(language === 'ID' ? "Gagal update role" : "Failed to update role");
+    }
   };
 
   const filteredUsers = users.filter(u => 
