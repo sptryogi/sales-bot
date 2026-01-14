@@ -907,6 +907,11 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                       name: session?.user?.user_metadata?.full_name || 'User',
                       email: session?.user?.email,
                       message: feedbackMessage
+                    }, {
+                      headers: {
+                        Authorization: `Bearer ${session.access_token}`,
+                        "Content-Type": "application/json"
+                      }
                     });
                     alert(language === 'ID'
                       ? "Feedback berhasil dikirim. Terima kasih!"
