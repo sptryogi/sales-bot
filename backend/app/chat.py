@@ -3,11 +3,7 @@ from fastapi.responses import StreamingResponse
 from openai import OpenAI
 import json, os
 from .auth import get_current_user
-from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session, get_admin_stats_db, 
-    get_all_users_db, 
-    update_user_role_db, 
-    get_user_chat_history_admin,
-    get_user_role 
+from .supabase_db import save_chat, load_chat, create_session, get_user_sessions, update_session_title, rename_session, delete_session, get_admin_stats_db, get_all_users_db, update_user_role_db, get_user_chat_history_admin, get_user_role 
 from .rag import load_rag
 import tempfile
 import requests
@@ -266,9 +262,9 @@ async def send_feedback(payload: dict, user=Depends(get_current_user)):
 def verify_admin(user, require_superadmin=False):
     role = get_user_role(user.id)
     if not role or role not in ['admin', 'superadmin']:
-        raise HTTPException(status_code=403, detail="Akses ditolak: Anda bukan Admin")
+        raise HTTPException(status_code=403, detail="Access denied: You are not an Admin")
     if require_superadmin and role != 'superadmin':
-        raise HTTPException(status_code=403, detail="Akses ditolak: Butuh hak Superadmin")
+        raise HTTPException(status_code=403, detail="Access denied: Superadmin rights required")
     return role
 
 # --- ADMIN ENDPOINTS ---
@@ -294,7 +290,7 @@ def change_user_role(payload: dict, user=Depends(get_current_user)):
     new_role = payload.get("role")
     
     if new_role not in ['sales', 'admin', 'superadmin']:
-        raise HTTPException(status_code=400, detail="Role tidak valid")
+        raise HTTPException(status_code=400, detail="Role not valid")
         
     success = update_user_role_db(target_user_id, new_role)
     return {"status": "success" if success else "failed"}
