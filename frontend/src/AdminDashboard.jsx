@@ -42,21 +42,71 @@ export default function AdminDashboard({ session, onClose, language }) {
 
   const fetchData = async () => {
     try {
-      // Gunakan axios untuk memanggil backend Python
-      const [statsRes, usersRes, feedbackRes] = await Promise.all([
-        axios.get(`${API_URL}/admin/stats`, { headers: { Authorization: `Bearer ${session.access_token}` } }),
-        axios.get(`${API_URL}/admin/users`, { headers: { Authorization: `Bearer ${session.access_token}` } }),
-        // Asumsi Anda akan menambahkan endpoint feedbacks di backend
-        axios.get(`${API_URL}/admin/feedbacks`, { headers: { Authorization: `Bearer ${session.access_token}` } }).catch(() => ({ data: [] }))
-      ]);
+      // USERS
+      const { data: usersData } = await supabase
+        .from("account")
+        .select("*")
+        .order("created_at", { ascending: false });
+  
+      setUsers(usersData || []);
+  
+      // FEEDBACK
+      const { data: feedbackData } = await supabase
+        .from("feedbacks")
+        .select("*")
+        .order("created_at", { ascending: false });
+  
+      setFeedbacks(feedbackData || []);
+  
+      // CHAT STATS
+      const { count: totalChats } = await supabase
+        .from("chat_history")
+        .select("*", { count: "exact", head: true });
+  
+      const today = new Date().toISOString().split("T")[0];
+  
+      const { count: chatsToday } = await supabase
+        .from("chat_history")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", today);
+  
+      // MOST ACTIVE USER
+      const { data: sessions } = await supabase
+        .from("sessions")
+        .select("user_id");
+  
+      let mostActive = "-";
+      if (sessions?.length) {
+        const counts = {};
+        sessions.forEach(s => {
+          counts[s.user_id] = (counts[s.user_id] || 0) + 1;
+        });
+  
+        const topId = Object.keys(counts).reduce((a, b) =>
+          counts[a] > counts[b] ? a : b
+        );
+  
+        const { data: u } = await supabase
+          .from("account")
+          .select("full_name")
+          .eq("id", topId)
+          .single();
+  
+        if (u) mostActive = u.full_name;
+      }
   
       setStats({
-        totalUsers: statsRes.data.total_users,
-        totalChats: statsRes.data.total_chats,
-        chatsToday: statsRes.data.chats_today,
-        mostActiveUser: statsRes.data.most_active_user || '-',
-        avgScore: statsRes.data.avg_performance
+        totalUsers: usersData?.length || 0,
+        totalChats: totalChats || 0,
+        chatsToday: chatsToday || 0,
+        mostActiveUser: mostActive,
+        avgScore: 4.5
       });
+  
+    } catch (err) {
+      console.error("Admin fetch error:", err);
+    }
+  };
       
       setUsers(usersRes.data);
       setFeedbacks(feedbackRes.data);
@@ -70,19 +120,17 @@ export default function AdminDashboard({ session, onClose, language }) {
     if (myRole !== 'superadmin') {
       return alert(language === 'ID' ? "Hanya Superadmin yang bisa!" : "Only Superadmin can!");
     }
+
+    const { error } = await supabase
+      .from("account")
+      .update({ role: newRole })
+      .eq("id", userId);
   
-    try {
-      await axios.post(`${API_URL}/admin/change-role`, {
-        user_id: userId,
-        role: newRole
-      }, {
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      });
-      
-      alert(language === 'ID' ? "Role berhasil diupdate" : "Role has updated");
-      fetchData(); // Refresh data
-    } catch (err) {
+    if (error) {
       alert(language === 'ID' ? "Gagal update role" : "Failed to update role");
+    } else {
+      alert(language === 'ID' ? "Role berhasil diupdate" : "Role has updated");
+      fetchData();
     }
   };
 
