@@ -104,13 +104,6 @@ export default function AdminDashboard({ session, onClose, language }) {
       });
   
     } catch (err) {
-      console.error("Admin fetch error:", err);
-    }
-  };
-      
-      setUsers(usersRes.data);
-      setFeedbacks(feedbackRes.data);
-    } catch (err) {
       console.error(language === 'ID' ? "Gagal fetch data admin:" : "Failed to fetch admin data:", err);
     }
   };
