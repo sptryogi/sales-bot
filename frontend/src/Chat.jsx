@@ -728,7 +728,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                         handleSend(e)
                       }
                     }}
-                    style={{ minHeight: '44px' }}
+                    style={{ touchAction: 'manipulation', minHeight: '44px' }}
                  />
           
 
