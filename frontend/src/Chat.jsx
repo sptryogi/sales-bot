@@ -747,10 +747,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0 resize-none py-2 px-2 max-h-40 overflow-y-auto"
                     placeholder={language === 'ID' ? "Kirim pesan ke MediSales..." : "Send a message to MediSales..."}
                     value={input}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      requestAnimationFrame(() => setInput(v));
-                    }}
+                    onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
                       if(e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
