@@ -43,8 +43,17 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
   
   const messagesEndRef = useRef(null)
   const scrollAreaRef = useRef(null) // Ref untuk div yang bisa di-scroll
+  const streamBufferRef = useRef("");
+  const rafRef = useRef(null);
 
   const [showToolsMenu, setShowToolsMenu] = useState(false);
+
+  const isNearBottom = () => {
+    const el = scrollAreaRef.current;
+    if (!el) return false;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+  };
+
 
   // --- LOGIC SCROLL ---
   const scrollToBottom = () => {
@@ -53,11 +62,16 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
       // Gunakan scrollTo agar lebih presisi dan tuntas
       scrollContainer.scrollTo({
         top: scrollContainer.scrollHeight,
-        behavior: "smooth" // Gunakan 'instant' jika ingin tanpa delay sama sekali
+        behavior: "auto" // Gunakan 'instant' jika ingin tanpa delay sama sekali
       });
     }
   }
-  useEffect(scrollToBottom, [messages])
+  useEffect(() => {
+    if (isNearBottom()) {
+      scrollToBottom();
+    }
+  }, [messages]);
+
 
   // --- LOGIC LOAD SESSIONS & HISTORY ---
   
@@ -125,7 +139,9 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
     } finally {
         setIsLoading(false)
         // Scroll ke bawah setelah data masuk
-        setTimeout(() => scrollToBottom(), 100) 
+        // setTimeout(() => if (isNearBottom()) {
+        //   scrollToBottom();
+        // }, 100) 
     }
   }
 
@@ -230,23 +246,33 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
         setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
         setIsLoading(false); // Matikan loading/thinking dots karena teks sudah mulai masuk
 
+        streamBufferRef.current = "";
         let accumulatedText = "";
 
         while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            accumulatedText += chunk;
-
-            // Update pesan assistant terakhir secara real-time
-            setMessages(prev => {
+          const { done, value } = await reader.read();
+          if (done) break;
+        
+          const chunk = decoder.decode(value, { stream: true });
+          streamBufferRef.current += chunk;
+        
+          if (!rafRef.current) {
+            rafRef.current = requestAnimationFrame(() => {
+              setMessages(prev => {
                 const updated = [...prev];
                 const lastIndex = updated.length - 1;
-                updated[lastIndex] = { ...updated[lastIndex], content: accumulatedText };
+                updated[lastIndex] = { 
+                  ...updated[lastIndex], 
+                  content: streamBufferRef.current 
+                };
                 return updated;
+              });
+        
+              rafRef.current = null;
             });
+          }
         }
+        scrollToBottom();
 
     } catch (error) {
         console.error("Error Streaming:", error);
@@ -718,10 +744,17 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               <div className="relative flex flex-col gap-2 bg-gray-50 dark:bg-[#2f2f2f] p-3 rounded-xl border border-gray-200 dark:border-gray-600 focus-within:border-gray-400 dark:focus-within:border-gray-500 shadow-lg transition-colors">
                  <textarea
                     rows={1}
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
                     className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0 resize-none py-2 px-2 max-h-40 overflow-y-auto"
                     placeholder={language === 'ID' ? "Kirim pesan ke MediSales..." : "Send a message to MediSales..."}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      requestAnimationFrame(() => setInput(v));
+                    }}
                     onKeyDown={(e) => {
                       if(e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
