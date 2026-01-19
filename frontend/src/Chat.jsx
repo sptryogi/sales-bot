@@ -744,10 +744,6 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
               <div className="relative flex flex-col gap-2 bg-gray-50 dark:bg-[#2f2f2f] p-3 rounded-xl border border-gray-200 dark:border-gray-600 focus-within:border-gray-400 dark:focus-within:border-gray-500 shadow-lg transition-colors">
                  <textarea
                     rows={1}
-                    inputMode="text"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
                     className="w-full bg-transparent border-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-0 resize-none py-2 px-2 max-h-40 overflow-y-auto"
                     placeholder={language === 'ID' ? "Kirim pesan ke MediSales..." : "Send a message to MediSales..."}
                     value={input}
