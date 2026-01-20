@@ -797,7 +797,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${mode === 'rag' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
                                   {mode === 'rag' ? <Database size={20}/> : <FileText size={20}/>}
-                                  <span className="text-[10px] font-bold uppercase tracking-tighter">Mode {mode === 'rag' ? 'RAG' : 'Full'}</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{mode === 'rag' ? (language === 'ID' ? 'Cari di Dokumen' : 'Search in Docs' : (language === 'ID' ? 'Pengetahuan Umum' : 'General Knowledge')</span>
                                 </button>
                           
                                 {/* 2. Web Search */}
@@ -805,7 +805,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   onClick={() => setWebSearch(!webSearch)}
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${webSearch ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
-                                  <Sparkles size={20} className={webSearch ? 'animate-pulse' : ''} />
+                                  <Globe size={20} className={webSearch ? 'animate-pulse' : ''} />
                                   <span className="text-[10px] font-bold uppercase tracking-tighter">{language === 'ID' ? 'Pencarian Web' : 'Web Search'}</span>
                                 </button>
                           
