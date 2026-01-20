@@ -26,7 +26,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
 
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [profLevel, setProfLevel] = useState('Pemula'); // Default: Pemula
+  const [responseLength, setResponseLength] = useState('pendek'); // 'pendek' atau 'panjang'
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   
@@ -221,7 +221,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 session_id: currentSessionId,
                 file_metadata: currentFile,
                 language: language,
-                professionalism: profLevel,
+                response_length: responseLength,
                 web_search: webSearch,
                 location_data: locationInfo
             })
@@ -381,10 +381,9 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
     handleResize()
   }, [])
 
-  const levels = [
-    { id: "Pemula", label: language === 'ID' ? "Pemula" : "Beginner" },
-    { id: "Menengah", label: language === 'ID' ? "Menengah" : "Intermediate" },
-    { id: "Expert", label: "Expert" }
+  const responseLengths = [
+    { id: "Pendek", label: language === 'ID' ? "Pendek" : "Short" },
+    { id: "Panjang", label: language === 'ID' ? "Panjang" : "Long" }
   ];
   
 
@@ -507,25 +506,22 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                   </span>
                 </button>
           
-                {/* 2. Set Profesionalitas */}
-                <div className="mt-1 p-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20">
-                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 mb-2 px-1">
-                    <ShieldCheck size={14} /> <span>{language === 'ID' ? 'LEVEL SALES' : 'SALES LEVEL'}: {profLevel}</span>
-                  </div>
-                  <div className="flex gap-1">
-                    {levels.map((lvl) => (
-                      <button
-                        key={lvl.id}
-                        onClick={() => setProfLevel(lvl.id)}
-                        className={`flex-1 text-[10px] py-1.5 rounded-lg border transition-all font-medium ${
-                          profLevel === lvl.id
-                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500'
-                        }`}
-                      >
-                        {lvl.label}
-                      </button>
-                    ))}
+                {/* 2. Set Panjang Jawaban */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold">{language === 'ID' ? 'Panjang Jawaban' : 'Response Length'}</label>
+                  <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl gap-1">
+                    <button 
+                      onClick={() => setResponseLength('pendek')}
+                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${responseLength === 'pendek' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
+                    >
+                      {language === 'ID' ? 'Pendek' : 'Short'}
+                    </button>
+                    <button 
+                      onClick={() => setResponseLength('panjang')}
+                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${responseLength === 'panjang' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
+                    >
+                      {language === 'ID' ? 'Panjang' : 'Long'}
+                    </button>
                   </div>
                 </div>
           
@@ -797,7 +793,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${mode === 'rag' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
                                   {mode === 'rag' ? <FileText size={20}/> : <BookOpen size={20}/>}
-                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{mode === 'rag' ? (language === 'ID' ? 'Cari di Dokumen' : 'Search in Docs') : (language === 'ID' ? 'Pengetahuan Umum' : 'General Knowledge')</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{mode === 'rag' ? (language === 'ID' ? 'Cari di Dokumen' : 'Search in Docs') : (language === 'ID' ? 'Pengetahuan Umum' : 'General Knowledge')}</span>
                                 </button>
                           
                                 {/* 2. Web Search */}
