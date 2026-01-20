@@ -5,7 +5,7 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import styles from './ThinkingDots.module.css'
-import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award, Sparkles, Settings, ShieldCheck, MessageSquarePlus, Languages } from 'lucide-react'
+import { MoreVertical, Loader2, Trash2, Edit3, X, FileIcon, Globe2, ImageIcon, Send, Paperclip, LogOut, Bot, Database, FileText, PanelLeftClose, BookOpen, PanelLeftOpen, Plus, Sun, Moon, MessageSquare, MapPin, Award, Sparkles, Settings, ShieldCheck, MessageSquarePlus, Languages } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -796,8 +796,8 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   onClick={() => setMode(mode === 'rag' ? 'full' : 'rag')}
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${mode === 'rag' ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
-                                  {mode === 'rag' ? <Database size={20}/> : <FileText size={20}/>}
-                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{mode === 'rag' ? (language === 'ID' ? 'Cari di Dokumen' : 'Search in Docs' : (language === 'ID' ? 'Pengetahuan Umum' : 'General Knowledge')</span>
+                                  {mode === 'rag' ? <FileText size={20}/> : <BookOpen size={20}/>}
+                                  <span className="text-[10px] font-bold uppercase tracking-tighter">{mode === 'rag' ? (language === 'ID' ? 'Cari di Dokumen' : 'Search in Docs') : (language === 'ID' ? 'Pengetahuan Umum' : 'General Knowledge')</span>
                                 </button>
                           
                                 {/* 2. Web Search */}
@@ -805,7 +805,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                                   onClick={() => setWebSearch(!webSearch)}
                                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all ${webSearch ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-gray-50 border-transparent text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}
                                 >
-                                  <Globe size={20} className={webSearch ? 'animate-pulse' : ''} />
+                                  <Globe2 size={20} className={webSearch ? 'animate-pulse' : ''} />
                                   <span className="text-[10px] font-bold uppercase tracking-tighter">{language === 'ID' ? 'Pencarian Web' : 'Web Search'}</span>
                                 </button>
                           
