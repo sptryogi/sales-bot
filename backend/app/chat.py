@@ -85,7 +85,7 @@ def chat(payload: dict, user=Depends(get_current_user)):
     lang = payload.get("language", "ID") # Ambil bahasa, default ID
     web_search_enabled = payload.get("web_search", False) # Ambil flag web_search
     location_data = payload.get("location_data")
-    prof_level = payload.get("professionalism", "Pemula") # Default ke Pemula
+    response_length = payload.get("response_length", "pendek")
 
     # Jika tidak ada session_id, buat baru otomatis (safety net)
     if not session_id or session_id == "null":
@@ -96,19 +96,11 @@ def chat(payload: dict, user=Depends(get_current_user)):
 
     history = load_chat(user.id, session_id)
 
-    # Logika instruksi berdasarkan level
-    prof_instructions = {
-        "Pemula": 
-            "Gunakan bahasa yang sangat sederhana, jelas, tidak teknis, dan mudah dipahami. Fokus pada penjelasan konsep dasar secara informatif dan runtut.",
-    
-        "Menengah": 
-            "Gunakan bahasa profesional yang ringkas dan jelas. Fokus pada penjelasan praktis, terstruktur, dan mudah langsung diterapkan.",
-    
-        "Expert": 
-            "Gunakan bahasa profesional tingkat lanjut. Sertakan analisis singkat, sudut pandang strategis, dan insight mendalam bila relevan."
-    }
-    
-    selected_inst = prof_instructions.get(prof_level, prof_instructions["Pemula"])
+    length_instruction = (
+        "Berikan jawaban yang ringkas, padat, dan langsung ke poinnya (to-the-point)." 
+        if response_length == "pendek" else 
+        "Berikan jawaban yang lengkap, detail, komprehensif, dan dijelaskan secara mendalam."
+    )
 
     context_web = ""
     if web_search_enabled:
@@ -143,31 +135,29 @@ def chat(payload: dict, user=Depends(get_current_user)):
     lang_instruction = "Bahasa Indonesia" if lang == "ID" else "English Language"
     
     system_prompt = f"""
-    Kamu adalah 'MediSales Assistant', AI pendamping untuk tim sales atau marketing.
-    LEVEL SALES USER: {prof_level}. 
-    INSTRUKSI KHUSUS: {selected_inst}
+    Kamu adalah 'MediSales Assistant', asisten cerdas yang dirancang khusus untuk mendukung profesional sales dan marketing.
 
-    Peran Utama:
-    Kamu memberikan jawaban yang informatif, akurat, profesional, dan praktis.
-    
-    Mode Adaptif:
-    - Jika user meminta strategi menjual, menjawab keberatan, atau pendekatan ke customer → gunakan gaya SALES COACH.
-    - Jika user hanya meminta informasi → jawab secara netral, informatif, dan objektif.
-    
+    PANJANG JAWABAN: {response_length}. 
+    INSTRUKSI KHUSUS: {length_instruction}.
+
+    Persona & Gaya Komunikasi:
+    - Gunakan nada yang profesional, lugas, dan efisien. 
+    - Berikan wawasan strategis, data teknis, atau solusi praktis yang dibutuhkan.
+    - Fokus pada penyediaan informasi yang mendukung pengambilan keputusan cepat dan eksekusi lapangan.
+    - Boleh berikan tabel jika diperlukan.
+
     Aturan Penting:
-    - Jawaban ditujukan untuk SALES, bukan langsung ke customer
-    - Gunakan {lang_instruction} yang profesional, singkat, jelas, dan praktis
-    - Jangan mengarang informasi di luar konteks
-    - Jika data tidak ada, katakan bahwa informasi belum tersedia
-    - Boleh menyertakan contoh script jika user memintanya
-    - Jangan menyebutkan sumber atau kata seperti "berdasarkan konteks"
-    - Jika lokasi user tersedia, gunakan untuk penyesuaian strategi
+    - Jawaban bersifat internal untuk tim SALES, bukan teks promosi langsung ke customer.
+    - Gunakan {lang_instruction} yang tajam, jelas, dan berwibawa.
+    - Jika informasi tidak ditemukan dalam konteks, gunakan basis pengetahuan Anda untuk memberikan analisis pendukung yang relevan. Jika benar-benar tidak ada, katakan data belum tersedia.
+    - Berikan contoh script atau poin argumen hanya jika diminta secara spesifik.
+    - JANGAN menyebutkan frasa seperti "berdasarkan dokumen", "menurut konteks", atau "saya menemukan informasi". Integrasikan data secara alami seolah-olah Anda adalah bagian dari tim mereka.
+    - Manfaatkan Lokasi User: {loc_context} untuk memberikan konteks pasar atau regulasi lokal jika memungkinkan.
 
-    Jawab hanya berdasarkan konteks berikut:
+    Gunakan referensi berikut untuk menyusun jawaban:
     {context}
     {file_context}
     {context_web}
-    Lokasi User: {loc_context}
     """
 
     messages = [{"role": "system", "content": system_prompt}]
