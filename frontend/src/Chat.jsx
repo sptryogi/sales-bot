@@ -26,7 +26,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
 
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [responseLength, setResponseLength] = useState('pendek'); // 'pendek' atau 'panjang'
+  // const [responseLength, setResponseLength] = useState('pendek'); // 'pendek' atau 'panjang'
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   
@@ -221,7 +221,7 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                 session_id: currentSessionId,
                 file_metadata: currentFile,
                 language: language,
-                response_length: responseLength,
+                // response_length: responseLength,
                 web_search: webSearch,
                 location_data: locationInfo
             })
@@ -505,25 +505,6 @@ export default function Chat({ session, darkMode, setDarkMode, language, setLang
                     {language === 'ID' ? 'ID (Indonesia)' : 'EN (English)'}
                   </span>
                 </button>
-          
-                {/* 2. Set Panjang Jawaban */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-bold">{language === 'ID' ? 'Panjang Jawaban' : 'Response Length'}</label>
-                  <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl gap-1">
-                    <button 
-                      onClick={() => setResponseLength('pendek')}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${responseLength === 'pendek' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
-                    >
-                      {language === 'ID' ? 'Pendek' : 'Short'}
-                    </button>
-                    <button 
-                      onClick={() => setResponseLength('panjang')}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${responseLength === 'panjang' ? 'bg-white dark:bg-gray-700 shadow-sm text-indigo-600' : 'text-gray-500'}`}
-                    >
-                      {language === 'ID' ? 'Panjang' : 'Long'}
-                    </button>
-                  </div>
-                </div>
           
                 {/* 3. Feedback */}
                 <button 
